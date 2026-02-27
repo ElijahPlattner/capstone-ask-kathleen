@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ask Kathleen (React w/out Vite)</title>
+
+  <!-- Tailwind via CDN (no build) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React (UMD) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <!-- htm: JSX-like templating without a build step -->
+  <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+</head>
+<body class="bg-gray-50">
+  <div id="root"></div>
+
+  <script>
+    // make htm bound to React.createElement
+    const html = htm.bind(React.createElement);
+    const { useState, useRef } = React;
+
+    function AskKathleen() {
+      const [query, setQuery] = useState("2026 Statutory Holiday");
+      const [loading, setLoading] = useState(false);
+      const [results, setResults] = useState([]);
+      const [error, setError] = useState(null);
+      const fileInputRef = useRef(null);
+
+      async function handleSearch() {
+        setLoading(true);
+        setError(null);
+        try {
+          const res = await fetch("/api/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query })
+          });
+          if (!res.ok) throw new Error(`Search failed (${res.status})`);
+          const data = await res.json();
+          setResults(data.results || []);
+        } catch (err) {
+          setError(err.message || String(err));
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      async function handleUpload(file) {
+        if (!file) return;
+        const form = new FormData();
+        form.append("file", file);
+        setLoading(true);
+        setError(null);
+        try {
+          const res = await fetch("/api/upload", { method: "POST", body: form });
+          if (!res.ok) throw new Error(`Upload failed (${res.status})`);
+          const data = await res.json();
+          if (data.doc) setResults(prev => [data.doc, ...prev]);
+        } catch (err) {
+          setError(err.message || String(err));
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      return html`
+        <div class="min-h-screen flex justify-center p-8">
+          <div class="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-8">
+
+            <div class="flex items-center gap-4 mb-6">
+              <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white font-bold">K</div>
+              <div>
+                <h1 class="text-2xl font-semibold">Ask <span class="text-red-600">Kathleen</span></h1>
+                <p class="text-sm text-gray-500">Search across project documents, summaries, and internal knowledge.</p>
+              </div>
+            </div>
+
+            <div class="relative mb-4">
+              <input
+                class="w-full border rounded-full py-3 pl-4 pr-40"
+                value=${query}
+                onInput=${e => setQuery(e.target.value)}
+                onKeyDown=${e => e.key === 'Enter' && handleSearch()}
+              />
+              <div class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+                <button
+                  class="bg-red-600 text-white px-4 py-2 rounded-full"
+                  onClick=${handleSearch}
+                  disabled=${loading}
+                >
+                  ${loading ? "Searching..." : "Search"}
+                </button>
+
+                <button
+                  class="border px-3 py-2 rounded-full"
+                  onClick=${() => fileInputRef.current && fileInputRef.current.click()}
+                >Upload</button>
+
+                <input
+                  type="file"
+                  ref=${fileInputRef}
+                  class="hidden"
+                  onChange=${e => handleUpload(e.target.files[0])}
+                />
+              </div>
+            </div>
+
+            ${error ? html`<div class="text-red-600 mb-4">${error}</div>` : null}
+
+            <div class="border-t pt-6">
+              ${results.length === 0 && !loading
+                ? html`<div class="text-gray-500">No results yet.</div>`
+                : results.map((r, i) => html`
+                    <div key=${i} class="mb-6">
+                      <div class="flex justify-between">
+                        <div>
+                          <h2 class="text-lg font-semibold">${r.title || "Untitled"}</h2>
+                          <div class="text-sm text-gray-500">${r.source || "Intranet"} · Date Added: ${r.date_added || "Unknown"}</div>
+                          <a class="text-blue-600 text-sm" href=${r.link || "#"}>View document</a>
+                        </div>
+                        <div class="text-sm">
+                          <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full">${r.status || "Approved"}</div>
+                          <div class="mt-2">👍 ${r.likes || 0} &nbsp; 👎 ${r.dislikes || 0}</div>
+                        </div>
+                      </div>
+                    </div>
+                  `)
+              }
+            </div>
+
+          </div>
+        </div>
+      `;
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(AskKathleen));
+  </script>
+</body>
+</html>
