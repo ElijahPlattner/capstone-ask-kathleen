@@ -24,7 +24,7 @@ supabase: Client = create_client(supabase_url, supabase_key)
 embeddings = OllamaEmbeddings(model="llama3.1:8b", base_url="http://localhost:11434")
 
 # load pdf docs from folder 'documents'
-loader = PyPDFDirectoryLoader("documents")
+loader = PyPDFDirectoryLoader("documents/document")
 
 # split the documents in multiple chunks
 documents = loader.load()
