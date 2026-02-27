@@ -50,12 +50,16 @@ Execute the following SQL query in Supabase:
 create extension if not exists vector;
 
 -- Create a table to store your documents
+-- NOTE: the dimension must match the embedding model you plan to use.
+-- OpenAI "text-embedding-3-small" produces 1536 dimensions, whereas
+-- Ollama embeddings (e.g. nomic-embed-text) use 768 dimensions.
+-- Adjust the number accordingly below; the example uses 768 for Ollama.
 create table
   documents (
     id uuid primary key,
     content text, -- corresponds to Document.pageContent
     metadata jsonb, -- corresponds to Document.metadata
-    embedding vector (1536) -- 1536 works for OpenAI embeddings, change if needed
+    embedding vector (768) -- change to 1536 for OpenAI or 768 for Ollama
   );
 
 -- Create a function to search for documents

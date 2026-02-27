@@ -27,7 +27,7 @@ embeddings = OllamaEmbeddings(model="llama3.1:8b", base_url="http://localhost:11
 loader = PyPDFDirectoryLoader("documents")
 
 # split the documents in multiple chunks
-documents = loader.load()
+documents = loader.load()[:2]  # Limit to first 2 documents
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
 docs = text_splitter.split_documents(documents)
 

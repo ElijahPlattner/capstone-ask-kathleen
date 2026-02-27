@@ -38,7 +38,8 @@ vector_store = SupabaseVectorStore(
 )
 
 # initiate large language model (temperature = 0)
-llm = ChatOllama(model="qwen3-vl:2b",base_url="http://localhost:11434")
+# switch from qwen3 to the downloaded llama3 model
+tools_llm = ChatOllama(model="llama3.1:8b", base_url="http://localhost:11434")
 
 # fetch the prompt from the prompt hub
 prompt = hub.pull("hwchase17/openai-functions-agent")
