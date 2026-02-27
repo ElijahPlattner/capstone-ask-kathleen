@@ -1,13 +1,5 @@
 <h1>Agentic RAG (Retrieval Augmented Generation) with LangChain and Supabase</h1>
 
-<h2>Watch the full tutorial on my YouTube Channel</h2>
-<div>
-
-<a href="https://www.youtube.com/watch?v=3ZDeqTIXBPM">
-    <img src="thumbnail.png" alt="Thomas Janssen Youtube" width="200"/>
-</a>
-</div>
-
 <h2>Prerequisites</h2>
 <ul>
   <li>Python 3.11+</li>
@@ -17,6 +9,7 @@
 <h3>1. Clone the repository:</h3>
 
 ```
+Lovely Man I got the open ai version from, RIP to our api keys
 git clone https://github.com/ThomasJanssen-tech/Agentic-RAG-with-LangChain.git
 cd Agentic RAG with LangChain
 ```
@@ -37,13 +30,16 @@ venv\Scripts\Activate
 <h3>4. Install libraries</h3>
 
 ```
-pip install -r requirements.txt
+pip install (figure this one out)
 ```
 
 <h3>5. Create accounts</h3>
 
 - Create a free account on Supabase: https://supabase.com/
-- Create an API key for OpenAI: https://platform.openai.com/api-keys
+- Dowload Ollama 
+```
+ollama pull qwen3-vl:4b
+```
 
 <h3>6. Execute SQL queries in Supabase</h3>
 
