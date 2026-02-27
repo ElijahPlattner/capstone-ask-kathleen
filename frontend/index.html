@@ -1,153 +1,494 @@
 <!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Ask Kathleen (React w/out Vite)</title>
-
-  <!-- Tailwind via CDN (no build) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Custom CSS (component + theme styles) -->
-  <link rel="stylesheet" href="./styles.css" />
-
-  <!-- React (UMD) -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-
-  <!-- htm: JSX-like templating without a build step -->
-  <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
-</head>
-
-<body>
-  <div id="root"></div>
-
-  <script>
-    // make htm bound to React.createElement
-    const html = htm.bind(React.createElement);
-    const { useState, useRef } = React;
-
-    function AskKathleen() {
-      const [query, setQuery] = useState("2026 Statutory Holiday");
-      const [loading, setLoading] = useState(false);
-      const [results, setResults] = useState([]);
-      const [error, setError] = useState(null);
-      const fileInputRef = useRef(null);
-
-      async function handleSearch() {
-        setLoading(true);
-        setError(null);
-        try {
-          const res = await fetch("/api/search", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query })
-          });
-          if (!res.ok) throw new Error(`Search failed (${res.status})`);
-          const data = await res.json();
-          setResults(data.results || []);
-        } catch (err) {
-          setError(err.message || String(err));
-        } finally {
-          setLoading(false);
-        }
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ask Kathleen</title>
+    <style>
+      :root{
+        --bg:#f6f6f8;
+        --card:#ffffff;
+        --text:#0f172a;
+        --muted:#64748b;
+        --border:rgba(15,23,42,.12);
+        --shadow: 0 10px 30px rgba(2,6,23,.08);
+        --shadow-sm: 0 6px 18px rgba(2,6,23,.06);
+        --brand:#d93a2f;
+        --radius-xl: 24px;
+        --radius-lg: 18px;
+        --radius-md: 14px;
       }
 
-      async function handleUpload(file) {
-        if (!file) return;
-        const form = new FormData();
-        form.append("file", file);
-        setLoading(true);
-        setError(null);
-        try {
-          const res = await fetch("/api/upload", { method: "POST", body: form });
-          if (!res.ok) throw new Error(`Upload failed (${res.status})`);
-          const data = await res.json();
-          if (data.doc) setResults(prev => [data.doc, ...prev]);
-        } catch (err) {
-          setError(err.message || String(err));
-        } finally {
-          setLoading(false);
-        }
+      *{box-sizing:border-box}
+      body{
+        margin:0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+        color:var(--text);
+        background:var(--bg);
+      }
+      a{color:inherit; text-decoration:none}
+      button,input{font:inherit}
+
+      /* Top bar */
+      .topbar{
+        position:sticky; top:0; z-index:20;
+        backdrop-filter: blur(10px);
+        background: rgba(255,255,255,.72);
+        border-bottom: 1px solid var(--border);
+      }
+      .container{
+        max-width: 1060px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      .topbar-inner{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding: 14px 0;
+      }
+      .brand{
+        display:flex;
+        align-items:center;
+        gap:10px;
+      }
+      .logo{
+        width:36px; height:36px;
+        border-radius: 14px;
+        background: var(--brand);
+        display:grid;
+        place-items:center;
+        box-shadow: 0 8px 18px rgba(217,58,47,.18);
+      }
+      .logo-grid{
+        display:grid;
+        grid-template-columns: repeat(2, 6px);
+        gap:4px;
+      }
+      .logo-grid span{
+        width:6px; height:6px;
+        background:#fff;
+        border-radius:2px;
+        display:block;
+      }
+      .brand-name{
+        font-weight: 650;
+        letter-spacing: -0.02em;
+        font-size: 18px;
+      }
+      .nav{
+        display:flex;
+        align-items:center;
+        gap:22px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .nav a:hover{color:var(--text)}
+      .nav .pill{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        border: 1px solid var(--border);
+        background:#fff;
+        padding: 8px 12px;
+        border-radius: 999px;
+        box-shadow: var(--shadow-sm);
+        color: #334155;
+        cursor:pointer;
       }
 
-      return html`
-        <div class="ak-page">
-          <div class="ak-shell">
+      /* Main card */
+      main{padding: 36px 0 64px}
+      .hero-card{
+        background: var(--card);
+        border: 1px solid rgba(2,6,23,.06);
+        border-radius: 28px;
+        box-shadow: var(--shadow-sm);
+        padding: 44px 26px;
+      }
+      .hero{
+        text-align:center;
+      }
+      .hero h1{
+        margin:0;
+        font-size: clamp(34px, 4.2vw, 52px);
+        letter-spacing: -0.03em;
+        font-weight: 650;
+      }
+      .hero .ask{color:var(--brand)}
+      .hero p{
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 15px;
+      }
 
-            <div class="ak-brand">
-              <div class="ak-avatar">K</div>
-              <div>
-                <h1 class="ak-title">Ask <span>Kathleen</span></h1>
-                <p class="ak-subtitle">Search across project documents, summaries, and internal knowledge.</p>
+      /* Search row */
+      .search-wrap{
+        max-width: 780px;
+        margin: 28px auto 0;
+      }
+      .search-row{
+        display:flex;
+        gap:10px;
+        align-items:center;
+        flex-wrap: wrap;
+      }
+      .search-input{
+        flex: 1 1 360px;
+        position:relative;
+      }
+      .search-input input{
+        width:100%;
+        height:48px;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        padding: 0 14px 0 44px;
+        outline:none;
+        background:#fff;
+        box-shadow: var(--shadow-sm);
+        font-size: 15px;
+      }
+      .search-input input:focus{
+        border-color: rgba(15,23,42,.22);
+        box-shadow: 0 0 0 4px rgba(15,23,42,.05), var(--shadow-sm);
+      }
+      .icon{
+        position:absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        width:18px;height:18px;
+        opacity:.55;
+      }
+      .btn{
+        height:48px;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        background:#fff;
+        padding: 0 14px;
+        font-weight: 600;
+        font-size: 14px;
+        display:inline-flex;
+        align-items:center;
+        gap:10px;
+        box-shadow: var(--shadow-sm);
+        cursor:pointer;
+      }
+      .btn:hover{background:#f8fafc}
+      .btn.primary{
+        background: var(--brand);
+        color:#fff;
+        border-color: rgba(0,0,0,0);
+      }
+      .btn.primary:hover{filter: brightness(.97)}
+      .btn .mini{
+        width:16px; height:16px;
+      }
+
+      /* Secondary actions */
+      .actions{
+        display:flex;
+        justify-content:center;
+        gap:12px;
+        margin-top: 14px;
+        flex-wrap: wrap;
+      }
+      .actions .btn{
+        height:auto;
+        padding: 10px 18px;
+        border-radius: 18px;
+      }
+      .actions .btn.primary{padding: 10px 20px}
+
+      .searching{
+        text-align:center;
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .dot{opacity:.35; padding: 0 6px}
+
+      /* Results */
+      .results{
+        max-width: 780px;
+        margin: 28px auto 0;
+        display:flex;
+        flex-direction:column;
+        gap:14px;
+      }
+      .result{
+        background:#fff;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: var(--shadow-sm);
+        padding: 18px;
+      }
+      .result h3{
+        margin:0;
+        font-size: 18px;
+        letter-spacing: -0.015em;
+      }
+      .result h3 .dim{color:var(--muted); font-weight: 550}
+      .meta{
+        margin-top: 8px;
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        align-items:center;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .meta strong{color:#475569}
+      .pill{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(2,6,23,.08);
+        background:#fff;
+        font-weight: 650;
+      }
+      .pill .dot{
+        width:7px;height:7px;border-radius:999px;
+        background:#22c55e;
+        opacity:1;
+        padding:0;
+      }
+      .pill.green{
+        background: rgba(16,185,129,.10);
+        border-color: rgba(16,185,129,.22);
+        color: #047857;
+      }
+      .pill.green .dot{background:#10b981}
+      .pill.amber{
+        background: rgba(245,158,11,.12);
+        border-color: rgba(245,158,11,.22);
+        color:#b45309;
+      }
+      .pill.amber .dot{background:#f59e0b}
+
+      .summary{
+        margin-top: 12px;
+        font-size: 14px;
+        line-height: 1.55;
+        color:#334155;
+      }
+      .summary b{color:#0f172a}
+
+      .result-footer{
+        margin-top: 14px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:12px;
+        flex-wrap: wrap;
+      }
+      .footer-left{display:flex; gap:10px; flex-wrap:wrap}
+      .vote{
+        display:flex;
+        gap:10px;
+      }
+      .counter{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        padding: 9px 12px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background:#fff;
+        box-shadow: var(--shadow-sm);
+        color:#334155;
+        font-size: 14px;
+        font-weight: 650;
+      }
+      .counter svg{width:16px;height:16px; opacity:.9}
+
+      /* Responsive */
+      @media (max-width: 720px){
+        .nav{display:none}
+        .hero-card{padding: 34px 18px}
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <div class="brand">
+            <div class="logo" aria-hidden="true">
+              <div class="logo-grid">
+                <span></span><span></span><span></span><span></span>
               </div>
             </div>
+            <div class="brand-name">CGI</div>
+          </div>
 
-            <div class="ak-search">
-              <input
-                class="ak-input"
-                value=${query}
-                onInput=${e => setQuery(e.target.value)}
-                onKeyDown=${e => e.key === "Enter" && handleSearch()}
-              />
+          <nav class="nav" aria-label="Top navigation">
+            <a href="#">Help</a>
+            <a href="#">About</a>
+            <a href="#">Feedback</a>
+            <button class="pill" type="button" aria-label="Search">
+              <!-- search icon -->
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="M21 21l-4.3-4.3"></path>
+              </svg>
+              <span style="display:none;">Search</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </header>
 
-              <div class="ak-actions">
-                <button
-                  class="ak-btn ak-btn--primary"
-                  onClick=${handleSearch}
-                  disabled=${loading}
-                >
-                  ${loading ? "Searching..." : "Search"}
-                </button>
+    <main>
+      <div class="container">
+        <section class="hero-card">
+          <div class="hero">
+            <h1><span class="ask">Ask</span> Kathleen</h1>
+            <p>Search across project documents, summaries, and internal knowledge.</p>
+          </div>
 
-                <button
-                  class="ak-btn"
-                  onClick=${() => fileInputRef.current && fileInputRef.current.click()}
-                >Upload</button>
-
+          <div class="search-wrap">
+            <div class="search-row">
+              <div class="search-input">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <circle cx="11" cy="11" r="7"></circle>
+                  <path d="M21 21l-4.3-4.3"></path>
+                </svg>
                 <input
-                  type="file"
-                  ref=${fileInputRef}
-                  class="hidden"
-                  onChange=${e => handleUpload(e.target.files[0])}
+                  value="What are best practices for rapid growth projects?"
+                  aria-label="Search"
                 />
               </div>
+
+              <button class="btn primary" type="button">
+                Search Now
+                <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M9 18l6-6-6-6"></path>
+                </svg>
+              </button>
+
+              <button class="btn" type="button">
+                <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="color: var(--brand);">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <path d="M7 10l5-5 5 5"></path>
+                  <path d="M12 5v14"></path>
+                </svg>
+                Upload documents
+              </button>
             </div>
 
-            ${error ? html`<div class="ak-error">${error}</div>` : null}
-
-            <div class="ak-results">
-              ${results.length === 0 && !loading
-                ? html`<div class="ak-empty">No results yet.</div>`
-                : results.map((r, i) => html`
-                    <div key=${i} class="ak-item">
-                      <div class="ak-item-head">
-                        <div>
-                          <h2 class="ak-item-title">${r.title || "Untitled"}</h2>
-                          <div class="ak-meta">
-                            ${r.source || "Intranet"} · Date Added: ${r.date_added || "Unknown"}
-                          </div>
-                          <a class="ak-link" href=${r.link || "#"}>View document</a>
-                        </div>
-
-                        <div class="ak-right">
-                          <div class="ak-badge ak-badge--green">${r.status || "Approved"}</div>
-                          <div style="margin-top: 8px;">👍 ${r.likes || 0} &nbsp; 👎 ${r.dislikes || 0}</div>
-                        </div>
-                      </div>
-                    </div>
-                  `)
-              }
+            <div class="actions">
+              <button class="btn primary" type="button">Search knowledge</button>
+              <button class="btn" type="button">Advanced filters</button>
             </div>
 
+            <div class="searching">
+              Searching:
+              <span>SharePoint</span><span class="dot">·</span>
+              <span>Confluence</span><span class="dot">·</span>
+              <span>Teams Files</span><span class="dot">·</span>
+              <span>Internal Repos</span>
+            </div>
           </div>
-        </div>
-      `;
-    }
 
-    ReactDOM
-      .createRoot(document.getElementById("root"))
-      .render(React.createElement(AskKathleen));
-  </script>
-</body>
+          <section class="results" aria-label="Search results">
+            <article class="result">
+              <h3>
+                CRM Migration Playbook <span class="dim">–</span> Retail Client
+                <span class="dim">(Case Study Summary)</span>
+              </h3>
+
+              <div class="meta">
+                <span><strong>SharePoint</strong> <span class="dot">·</span> Last validated: Oct 2025</span>
+                <span class="dot">·</span>
+                <span>Status:</span>
+                <span class="pill green"><span class="dot"></span> Approved</span>
+              </div>
+
+              <div class="summary">
+                <b>AI summary:</b>
+                This document outlines a phased approach for stabilizing legacy CRM systems while onboarding new teams during a period of rapid growth. The playbook covers key methodologies used to migrate Retail Client's CRM from Salesforce to Microsoft Dynamics 365, focusing on 18.T…
+              </div>
+
+              <div class="result-footer">
+                <div class="footer-left">
+                  <button class="btn" type="button">
+                    <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M9 18l6-6-6-6"></path>
+                    </svg>
+                    View document
+                  </button>
+                  <button class="btn" type="button">Expand summary</button>
+                </div>
+
+                <div class="vote">
+                  <span class="counter">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11a2 2 0 0 0 2-2l1-7a2 2 0 0 0-2-2h-5z"></path>
+                    </svg>
+                    21
+                  </span>
+                  <span class="counter">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H6a2 2 0 0 0-2 2l-1 7a2 2 0 0 0 2 2h5z"></path>
+                    </svg>
+                    2
+                  </span>
+                </div>
+              </div>
+            </article>
+
+            <article class="result">
+              <h3>
+                Resource Expansion Initiative <span class="dim">–</span> Tech Client
+                <span class="dim">(Case Study Summary)</span>
+              </h3>
+
+              <div class="meta">
+                <span><strong>Internal Repos</strong> <span class="dot">·</span> Last validated: Jan 2023</span>
+                <span class="dot">·</span>
+                <span>Status:</span>
+                <span class="pill amber"><span class="dot"></span> Needs review</span>
+              </div>
+
+              <div class="summary">
+                <b>AI summary:</b>
+                Summary of rapid staff ramp-up for a tech client, based on 2021 expansion. Details include key strategies for onboarding new developers at scale…
+              </div>
+
+              <div class="result-footer">
+                <div class="footer-left">
+                  <button class="btn" type="button">
+                    <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M9 18l6-6-6-6"></path>
+                    </svg>
+                    View document
+                  </button>
+                  <button class="btn" type="button">Expand summary</button>
+                </div>
+
+                <div class="vote">
+                  <span class="counter">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11a2 2 0 0 0 2-2l1-7a2 2 0 0 0-2-2h-5z"></path>
+                    </svg>
+                    8
+                  </span>
+                  <span class="counter">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H6a2 2 0 0 0-2 2l-1 7a2 2 0 0 0 2 2h5z"></path>
+                    </svg>
+                    1
+                  </span>
+                </div>
+              </div>
+            </article>
+          </section>
+        </section>
+      </div>
+    </main>
+  </body>
 </html>
