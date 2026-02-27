@@ -1,0 +1,226 @@
+/* ---------------------------
+   Ask Kathleen – base theme
+   --------------------------- */
+
+:root {
+  --bg: #f8fafc;             /* page background */
+  --surface: #ffffff;        /* card background */
+  --text: #0f172a;           /* slate-900 */
+  --muted: #64748b;          /* slate-500 */
+  --border: #e2e8f0;         /* slate-200 */
+
+  --brand: #dc2626;          /* red-600 */
+  --brand-700: #b91c1c;      /* red-700 */
+
+  --ring: rgba(220, 38, 38, 0.35);
+
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+
+  --shadow-lg: 0 20px 40px rgba(15, 23, 42, 0.08);
+  --shadow-sm: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+/* Better default typography (without needing a reset library) */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--text);
+  background: var(--bg);
+}
+
+/* Layout helpers */
+.ak-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+.ak-shell {
+  width: 100%;
+  max-width: 960px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 28px;
+}
+
+/* Header */
+.ak-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.ak-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: #fff;
+  background: var(--brand);
+  box-shadow: var(--shadow-sm);
+}
+
+.ak-title {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 750;
+}
+
+.ak-title span { color: var(--brand); }
+
+.ak-subtitle {
+  margin: 6px 0 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Search row */
+.ak-search {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.ak-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 14px 160px 14px 16px;
+  font-size: 14px;
+  outline: none;
+  transition: box-shadow 120ms ease, border-color 120ms ease;
+  background: #fff;
+}
+
+.ak-input:focus {
+  border-color: rgba(220, 38, 38, 0.35);
+  box-shadow: 0 0 0 4px var(--ring);
+}
+
+/* Button group pinned to the right of the input */
+.ak-actions {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+/* Buttons */
+.ak-btn {
+  border-radius: var(--radius-pill);
+  padding: 9px 14px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  transition: transform 80ms ease, background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+}
+
+.ak-btn:hover { background: #f8fafc; }
+.ak-btn:active { transform: translateY(1px); }
+
+.ak-btn--primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+.ak-btn--primary:hover { background: var(--brand-700); border-color: var(--brand-700); }
+
+.ak-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Error */
+.ak-error {
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin: 10px 0 16px;
+  font-size: 13px;
+}
+
+/* Results */
+.ak-results {
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+  margin-top: 10px;
+}
+
+.ak-empty {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 10px 0;
+}
+
+.ak-item {
+  padding: 14px 0;
+}
+
+.ak-item + .ak-item {
+  border-top: 1px solid var(--border);
+}
+
+.ak-item-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.ak-item-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ak-meta {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.ak-link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #2563eb;
+  text-decoration: none;
+}
+.ak-link:hover { text-decoration: underline; }
+
+.ak-right {
+  text-align: right;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Status badge */
+.ak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 650;
+  border: 1px solid transparent;
+}
+
+.ak-badge--green {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #bbf7d0;
+}

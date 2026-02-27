@@ -8,6 +8,9 @@
   <!-- Tailwind via CDN (no build) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Custom CSS (component + theme styles) -->
+  <link rel="stylesheet" href="./styles.css" />
+
   <!-- React (UMD) -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -15,7 +18,8 @@
   <!-- htm: JSX-like templating without a build step -->
   <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 </head>
-<body class="bg-gray-50">
+
+<body>
   <div id="root"></div>
 
   <script>
@@ -68,27 +72,28 @@
       }
 
       return html`
-        <div class="min-h-screen flex justify-center p-8">
-          <div class="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-8">
+        <div class="ak-page">
+          <div class="ak-shell">
 
-            <div class="flex items-center gap-4 mb-6">
-              <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white font-bold">K</div>
+            <div class="ak-brand">
+              <div class="ak-avatar">K</div>
               <div>
-                <h1 class="text-2xl font-semibold">Ask <span class="text-red-600">Kathleen</span></h1>
-                <p class="text-sm text-gray-500">Search across project documents, summaries, and internal knowledge.</p>
+                <h1 class="ak-title">Ask <span>Kathleen</span></h1>
+                <p class="ak-subtitle">Search across project documents, summaries, and internal knowledge.</p>
               </div>
             </div>
 
-            <div class="relative mb-4">
+            <div class="ak-search">
               <input
-                class="w-full border rounded-full py-3 pl-4 pr-40"
+                class="ak-input"
                 value=${query}
                 onInput=${e => setQuery(e.target.value)}
-                onKeyDown=${e => e.key === 'Enter' && handleSearch()}
+                onKeyDown=${e => e.key === "Enter" && handleSearch()}
               />
-              <div class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+
+              <div class="ak-actions">
                 <button
-                  class="bg-red-600 text-white px-4 py-2 rounded-full"
+                  class="ak-btn ak-btn--primary"
                   onClick=${handleSearch}
                   disabled=${loading}
                 >
@@ -96,7 +101,7 @@
                 </button>
 
                 <button
-                  class="border px-3 py-2 rounded-full"
+                  class="ak-btn"
                   onClick=${() => fileInputRef.current && fileInputRef.current.click()}
                 >Upload</button>
 
@@ -109,22 +114,25 @@
               </div>
             </div>
 
-            ${error ? html`<div class="text-red-600 mb-4">${error}</div>` : null}
+            ${error ? html`<div class="ak-error">${error}</div>` : null}
 
-            <div class="border-t pt-6">
+            <div class="ak-results">
               ${results.length === 0 && !loading
-                ? html`<div class="text-gray-500">No results yet.</div>`
+                ? html`<div class="ak-empty">No results yet.</div>`
                 : results.map((r, i) => html`
-                    <div key=${i} class="mb-6">
-                      <div class="flex justify-between">
+                    <div key=${i} class="ak-item">
+                      <div class="ak-item-head">
                         <div>
-                          <h2 class="text-lg font-semibold">${r.title || "Untitled"}</h2>
-                          <div class="text-sm text-gray-500">${r.source || "Intranet"} · Date Added: ${r.date_added || "Unknown"}</div>
-                          <a class="text-blue-600 text-sm" href=${r.link || "#"}>View document</a>
+                          <h2 class="ak-item-title">${r.title || "Untitled"}</h2>
+                          <div class="ak-meta">
+                            ${r.source || "Intranet"} · Date Added: ${r.date_added || "Unknown"}
+                          </div>
+                          <a class="ak-link" href=${r.link || "#"}>View document</a>
                         </div>
-                        <div class="text-sm">
-                          <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full">${r.status || "Approved"}</div>
-                          <div class="mt-2">👍 ${r.likes || 0} &nbsp; 👎 ${r.dislikes || 0}</div>
+
+                        <div class="ak-right">
+                          <div class="ak-badge ak-badge--green">${r.status || "Approved"}</div>
+                          <div style="margin-top: 8px;">👍 ${r.likes || 0} &nbsp; 👎 ${r.dislikes || 0}</div>
                         </div>
                       </div>
                     </div>
@@ -137,7 +145,9 @@
       `;
     }
 
-    ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(AskKathleen));
+    ReactDOM
+      .createRoot(document.getElementById("root"))
+      .render(React.createElement(AskKathleen));
   </script>
 </body>
 </html>
