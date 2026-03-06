@@ -8,6 +8,7 @@ from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import SupabaseVectorStore
 from langchain_openai import OpenAIEmbeddings
+from langchain_community.embeddings import HuggingFaceHubEmbeddings
 
 # import supabase
 from supabase.client import Client, create_client
@@ -27,7 +28,9 @@ options.httpx_client = HttpxClient(verify=False)
 supabase: Client = create_client(supabase_url, supabase_key, options)
 
 # initiate embeddings model
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+embeddings = HuggingFaceHubEmbeddings(
+    model_name=="sentence-transformers/all-MiniLM-L6-v2"
+)
 
 # load pdf docs from folder 'documents'
 loader = PyPDFDirectoryLoader("documents")

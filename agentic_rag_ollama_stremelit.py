@@ -60,7 +60,7 @@ vector_store = SupabaseVectorStore(
 # initiating llm
 # --- CHANGED: Using ChatOllama with the local llama3.1:8b model ---
 # qwen3-vl:4b wasn't available; switch to the pulled llama3.1:8b
-llm = ChatOllama(model="llama3.1:8b", base_url="http://localhost:11434")
+llm = ChatOllama(model="qwen2.5:7b-instruct", base_url="http://localhost:11434")
 
 # creating a local ReAct prompt template (avoiding hub.pull SSL issues)
 prompt = PromptTemplate.from_template("""Answer the following questions as best you can. You have access to the following tools:
@@ -77,6 +77,12 @@ Observation: the result of the action
 ... (this Thought/Action/Action Input/Observation can repeat N times)
 Thought: I now know the final answer
 Final Answer: the final answer to the original input question
+After you receive relevant information from the tool,
+you MUST provide a Final Answer.
+Do not call the same tool more than once.
+Do not repeat observations.
+                                      
+                                      
 
 Chat History:
 {chat_history}
