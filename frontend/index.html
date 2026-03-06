@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ask Kathleen</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ask Kathleen — Doc Discovery + Local DB</title>
     <style>
       :root{
         --bg:#f6f6f8;
@@ -22,12 +22,12 @@
       *{box-sizing:border-box}
       body{
         margin:0;
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
         color:var(--text);
         background:var(--bg);
       }
       a{color:inherit; text-decoration:none}
-      button,input{font:inherit}
+      button,input,select{font:inherit}
 
       .app-shell{
         min-height:100vh;
@@ -41,11 +41,6 @@
         background: linear-gradient(180deg, #4a38a6 0%, #2a136b 100%);
         padding: 24px 16px;
       }
-      .left-sidebar h2{
-        margin:0 0 26px;
-        font-size:40px;
-        letter-spacing:-0.02em;
-      }
       .side-label{
         margin:0 0 10px;
         font-size:12px;
@@ -53,30 +48,6 @@
         letter-spacing:.08em;
         text-transform:uppercase;
         opacity:.9;
-      }
-      .side-copy{
-        margin:0;
-        font-size:34px;
-        line-height:1.2;
-        opacity:.92;
-      }
-      .side-list{
-        list-style:none;
-        margin:0;
-        padding:0;
-      }
-      .side-list li{
-        margin: 0 0 8px;
-        font-size:31px;
-        line-height:1.32;
-      }
-      .side-block{
-        margin: 0 0 28px;
-      }
-      .quick-search{
-        margin-top: 30px;
-        padding-top: 24px;
-        border-top: 1px solid rgba(255,255,255,.2);
       }
       .quick-btn{
         width:100%;
@@ -166,7 +137,7 @@
       }
       .btn{
         height:48px;
-        border-radius: 18px;
+        border-radius:18px;
         border: 1px solid var(--border);
         background:#fff;
         padding: 0 14px;
@@ -185,24 +156,9 @@
         border-color: rgba(0,0,0,0);
       }
       .btn.primary:hover{filter: brightness(.97)}
-      .btn .mini{
-        width:16px; height:16px;
-      }
+      .btn .mini{width:16px; height:16px}
 
-      /* Secondary actions */
-      .actions{
-        display:flex;
-        justify-content:center;
-        gap:12px;
-        margin-top: 14px;
-        flex-wrap: wrap;
-      }
-      .actions .btn{
-        height:auto;
-        padding: 10px 18px;
-        border-radius: 18px;
-      }
-      .actions .btn.primary{padding: 10px 20px}
+      /* Filters */
       .filters-menu{
         position:relative;
       }
@@ -318,6 +274,9 @@
         color:#b45309;
       }
       .pill.amber .dot{background:#f59e0b}
+      .pill.blue{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.18);color:#1e3a8a}
+      .pill.gray{background:rgba(100,116,139,.06);border-color:rgba(100,116,139,.12);color:#334155}
+      .pill.purple{background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.18);color:#6d28d9}
 
       .result-footer{
         margin-top: 14px;
@@ -357,44 +316,15 @@
         border-color: rgba(239,68,68,.38);
         color:#b91c1c;
       }
-      .empty-state{
-        text-align:center;
-        color:var(--muted);
-        font-size:14px;
-        padding: 24px 0;
-      }
-      .loading-state{
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        gap:14px;
-        min-height:180px;
-        text-align:center;
-        color:var(--muted);
-      }
-      .loading-spinner{
-        width:42px;
-        height:42px;
-        border-radius:999px;
-        border:4px solid rgba(15,23,42,.12);
-        border-top-color:var(--brand);
-        animation: spin .9s linear infinite;
-      }
-      .loading-title{
-        margin:0;
-        color:var(--text);
-        font-size:24px;
-        letter-spacing:-.02em;
-      }
-      .loading-copy{
-        margin:0;
-        max-width:420px;
-        font-size:14px;
-        line-height:1.5;
-      }
 
-      /* Responsive */
+      /* modal */
+      .pdf-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,.55);z-index:1200;padding:24px}
+      .pdf-modal.is-open{display:flex}.pdf-frame{width:min(1100px,96%);height:min(820px,92%);background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+      .pdf-frame header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+      .pdf-frame iframe{width:100%;height:100%;border:0}
+      .top-controls{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-bottom:12px}
+      .db-controls{display:flex;gap:8px;align-items:center;margin-left:auto}
+
       @media (max-width: 720px){
         .app-shell{display:block}
         .left-sidebar{width:100%; padding: 22px 18px}
@@ -402,10 +332,7 @@
         .side-copy{font-size:26px}
         .side-list li{font-size:24px}
         .hero-card{padding: 34px 18px}
-      }
-
-      @keyframes spin{
-        to{transform:rotate(360deg)}
+        .pdf-frame{height:86vh;width:96%}
       }
     </style>
   </head>
@@ -413,292 +340,853 @@
   <body>
     <div class="app-shell">
       <aside class="left-sidebar">
-        <section class="quick-search">
-          <p class="side-label">Quick Search</p>
-          <button class="quick-btn" type="button">CRM migration</button>
-          <button class="quick-btn" type="button">Resource expansion</button>
-          <button class="quick-btn" type="button">Knowledge search</button>
-          <button class="quick-btn" type="button">Internal repos</button>
-        </section>
+        <p class="side-label" style="color:rgba(255,255,255,.9);margin-bottom:12px">Quick Search</p>
+        <button class="quick-btn" type="button">CRM migration</button>
+        <button class="quick-btn" type="button">Resource expansion</button>
+        <button class="quick-btn" type="button">Knowledge search</button>
       </aside>
 
       <div class="content-shell">
         <main>
           <div class="container">
             <section class="hero-card">
-          <div class="hero">
-            <h1><span class="ask">Ask</span> Kathleen</h1>
-            <p>Search across project documents, summaries, and internal knowledge.</p>
-          </div>
-
-          <div class="search-wrap">
-            <div class="search-row">
-              <div class="search-input">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <circle cx="11" cy="11" r="7"></circle>
-                  <path d="M21 21l-4.3-4.3"></path>
-                </svg>
-                <input
-                  id="queryInput"
-                  value="What are best practices for rapid growth projects?"
-                  aria-label="Search"
-                />
+              <div class="hero">
+                <h1><span class="ask">Ask</span> Kathleen</h1>
+                <p>Search across project documents, summaries, and internal knowledge.</p>
               </div>
 
-              <button class="btn primary" id="searchButton" type="button">
-                <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <path d="M9 18l6-6-6-6"></path>
-                </svg>
-              </button>
-
-              <details class="filters-menu">
-                <summary class="btn">Advanced filters</summary>
-                <div class="filters-panel">
-                  <div class="filter-field">
-                    <label for="filter-location">Location</label>
-                    <input id="filter-location" type="text" placeholder="e.g., New York" />
+              <div class="search-wrap">
+                <div class="search-row">
+                  <div class="search-input">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;opacity:.55">
+                      <circle cx="11" cy="11" r="7"></circle>
+                      <path d="M21 21l-4.3-4.3"></path>
+                    </svg>
+                    <input id="searchBox" value="What are best practices for rapid growth projects?" aria-label="Search" style="padding-left:44px;height:48px;width:100%;border-radius:18px;border:1px solid var(--border)"/>
                   </div>
 
-                  <div class="filter-range">
-                    <div class="filter-field">
-                      <label for="filter-start-date">Start date</label>
-                      <input id="filter-start-date" type="date" />
+                  <button class="btn primary" id="searchBtn">Search Now</button>
+
+                  <div class="top-controls" style="margin-left:auto">
+                    <div class="db-controls">
+                      <button class="btn" id="exportDb">Export DB</button>
+                      <label class="btn" for="importDbFile" style="cursor:pointer">Import DB<input id="importDbFile" type="file" accept="application/json" style="display:none"></label>
+                      <button class="btn" id="resetDb">Reset DB</button>
                     </div>
-                    <div class="filter-field">
-                      <label for="filter-end-date">End date</label>
-                      <input id="filter-end-date" type="date" />
-                    </div>
-                  </div>
-
-                  <div class="filter-field">
-                    <label for="filter-type">Type</label>
-                    <select id="filter-type">
-                      <option value="">Any type</option>
-                      <option value="case-study">Case study</option>
-                      <option value="playbook">Playbook</option>
-                      <option value="summary">Summary</option>
-                    </select>
-                  </div>
-
-                  <div class="filter-field">
-                    <label for="filter-status">Status</label>
-                    <select id="filter-status">
-                      <option value="">Any status</option>
-                      <option value="approved">Approved</option>
-                      <option value="needs-review">Needs review</option>
-                    </select>
-                  </div>
-
-                  <div class="filter-field" style="margin-bottom:0;">
-                    <label for="filter-sensitivity">Sensitivity</label>
-                    <select id="filter-sensitivity">
-                      <option value="">Any sensitivity</option>
-                      <option value="internal">Internal</option>
-                      <option value="external">External</option>
-                      <option value="external-limited">External limited</option>
-                    </select>
                   </div>
                 </div>
-              </details>
-            </div>
 
-            <div class="searching" id="statusText">
-              Searching:
-              <span>SharePoint</span><span class="dot">·</span>
-              <span>Confluence</span><span class="dot">·</span>
-              <span>Teams Files</span><span class="dot">·</span>
-              <span>Internal Repos</span>
-            </div>
-          </div>
+                <div style="display:flex;justify-content:center;gap:12px;margin-top:14px">
+                  <button class="btn primary" id="refreshDocs">Refresh discovery</button>
 
-          <section class="results" aria-label="Search results"></section>
+                  <!-- filters menu -->
+                  <details class="filters-menu" style="position:relative">
+                    <summary class="btn" style="height:40px;border-radius:12px;padding:8px 12px;display:inline-flex;align-items:center;gap:8px;">Advanced filters</summary>
+                    <div class="filters-panel" role="region" aria-label="Advanced filters">
+                      <div class="filter-field">
+                        <label for="filter-location">Location</label>
+                        <select id="filter-location">
+                          <option value="">Any location</option>
+                          <option value="Sharepoint">Sharepoint</option>
+                          <option value="Teams">Teams</option>
+                          <option value="Confluence">Confluence</option>
+                        </select>
+                      </div>
+
+                      <div class="filter-range">
+                        <div class="filter-field">
+                          <label for="filter-start-date">Start date</label>
+                          <input id="filter-start-date" type="date" />
+                        </div>
+                        <div class="filter-field">
+                          <label for="filter-end-date">End date</label>
+                          <input id="filter-end-date" type="date" />
+                        </div>
+                      </div>
+
+                      <div class="filter-field">
+                        <label for="filter-status">Status</label>
+                        <select id="filter-status">
+                          <option value="">Any status</option>
+                          <option value="Approved">Approved</option>
+                          <option value="Needs review">Needs review</option>
+                        </select>
+                      </div>
+
+                      <div class="filter-field" style="margin-bottom:0;">
+                        <label for="filter-sensitivity">Sensitivity</label>
+                        <select id="filter-sensitivity">
+                          <option value="">Any sensitivity</option>
+                          <option value="Internal">Internal</option>
+                          <option value="External">External</option>
+                          <option value="External — Limited">External — Limited</option>
+                        </select>
+                      </div>
+                    </div>
+                  </details>
+                </div>
+
+                <div class="searching" style="text-align:center;margin-top:12px;color:var(--muted);font-size:12px">
+                  Searching: <span>SharePoint</span><span class="dot">·</span><span>Confluence</span><span class="dot">·</span><span>Teams</span>
+                </div>
+              </div>
+
+              <section class="results" aria-label="Search results">
+                <!-- JS injects cards here -->
+              </section>
+            </section>
           </div>
         </main>
       </div>
     </div>
-    <script>
-      const queryInput = document.getElementById("queryInput");
-      const searchButton = document.getElementById("searchButton");
-      const resultsEl = document.querySelector(".results");
-      const statusText = document.getElementById("statusText");
 
-      function escapeHtml(value) {
-        return String(value)
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;");
+    <!-- PDF Modal -->
+    <div id="pdfModal" class="pdf-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="pdfTitle">
+      <div class="pdf-frame" role="document">
+        <header>
+          <div class="title" id="pdfTitle">Document</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <a id="openNewTab" class="btn" href="#" target="_blank" rel="noopener">Open in new tab</a>
+            <button id="closePdf" class="btn">Close</button>
+          </div>
+        </header>
+        <main id="pdfViewer" style="height:100%">
+          <iframe id="pdfFrame" src="" title="PDF viewer"></iframe>
+        </main>
+      </div>
+    </div>
+
+    <!-- Edit Metadata Modal -->
+    <div id="editMetaModal" class="modal" aria-hidden="true" style="display:none">
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="editMetaTitle">
+        <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 id="editMetaTitle" style="margin:0;font-size:18px">Edit metadata</h3>
+          <button id="closeEditMeta" aria-label="Close metadata editor" class="btn" type="button">✕</button>
+        </header>
+
+        <form id="editMetaForm" style="display:flex;flex-direction:column;gap:10px">
+          <input type="hidden" id="editDocId" />
+
+          <div>
+            <label style="display:block;font-weight:600;font-size:13px;margin-bottom:6px">Document</label>
+            <div id="editDocTitle" style="font-size:14px;color:var(--text);"></div>
+          </div>
+
+          <div>
+            <label for="editSensitivity" style="display:block;font-weight:600;font-size:13px;margin-bottom:6px">Sensitivity</label>
+            <select id="editSensitivity" style="width:100%;height:40px;border-radius:8px;padding:6px 8px;border:1px solid var(--border);background:#fff">
+              <option>External</option>
+              <option>Internal</option>
+              <option>External — Limited</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="editStatus" style="display:block;font-weight:600;font-size:13px;margin-bottom:6px">Status</label>
+            <select id="editStatus" style="width:100%;height:40px;border-radius:8px;padding:6px 8px;border:1px solid var(--border);background:#fff">
+              <option>Approved</option>
+              <option>Needs review</option>
+            </select>
+          </div>
+
+          <div style="display:flex;gap:10px">
+            <div style="flex:1">
+              <label for="editStart" style="display:block;font-weight:600;font-size:13px;margin-bottom:6px">Start date</label>
+              <input id="editStart" type="date" style="width:100%;height:40px;border-radius:8px;padding:6px 8px;border:1px solid var(--border);background:#fff" />
+            </div>
+            <div style="flex:1">
+              <label for="editEnd" style="display:block;font-weight:600;font-size:13px;margin-bottom:6px">End date</label>
+              <input id="editEnd" type="date" style="width:100%;height:40px;border-radius:8px;padding:6px 8px;border:1px solid var(--border);background:#fff" />
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:6px">
+            <button id="cancelEditMeta" type="button" class="btn">Cancel</button>
+            <button id="saveEditMeta" type="button" class="btn primary">Save</button>
+          </div>
+        </form>
+      </div>
+
+      <style>
+        #editMetaModal.modal {
+          position: fixed;
+          inset: 0;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          background: rgba(2,6,23,0.32);
+          z-index: 1200;
+          padding: 24px;
+        }
+        #editMetaModal .modal-panel {
+          width: 720px;
+          max-width: 96%;
+          border-radius: 14px;
+          background: var(--card);
+          padding: 18px;
+          box-shadow: var(--shadow);
+          border: 1px solid var(--border);
+        }
+        @media (max-width:720px) {
+          #editMetaModal .modal-panel { width: 100%; padding: 14px; border-radius: 12px }
+        }
+      </style>
+    </div>
+
+    <script>
+      /* =========================
+         Ask Kathleen — discovery + local DB (resolved + filters + modal)
+         ========================= */
+
+      /* ---------- CONFIG ---------- */
+      const DB_KEY = 'ask_kathleen_db_v1';
+      const SOURCES = ['Sharepoint','Teams','Confluence'];
+
+      /* Full file list (keep precise filenames) */
+      const ALL_FILES = [
+"2026 US Statutory Holiday Policy - Cloud Services.pdf",
+"2026 US Statutory Holiday Policy - Commercial Sector.pdf",
+"2026 US Statutory Holiday Policy - Corporate Operations.pdf",
+"2026 US Statutory Holiday Policy - Cybersecurity Division.pdf",
+"2026 US Statutory Holiday Policy - Digital Transformation.pdf",
+"2026 US Statutory Holiday Policy - Emerging Markets.pdf",
+"2026 US Statutory Holiday Policy - Enterprise Solutions.pdf",
+"2026 US Statutory Holiday Policy - Federal Services.pdf",
+"2026 US Statutory Holiday Policy - Finance Department.pdf",
+"2026 US Statutory Holiday Policy - Financial Services.pdf",
+"2026 US Statutory Holiday Policy - Healthcare Division.pdf",
+"2026 US Statutory Holiday Policy - Human Resources.pdf",
+"2026 US Statutory Holiday Policy - Infrastructure Services.pdf",
+"2026 US Statutory Holiday Policy - IT Services.pdf",
+"2026 US Statutory Holiday Policy - Legal & Compliance.pdf",
+"2026 US Statutory Holiday Policy - Shared Services.pdf",
+"2026 US Statutory Holiday Policy - State & Local Government.pdf",
+"2026 US Statutory Holiday Policy - Strategic Programs.pdf",
+"2026 US Statutory Holiday Policy - Technology Consulting.pdf",
+"Benefits Enrollment Guide - Business Process Outsourcing.pdf",
+"Benefits Enrollment Guide - Cloud Services.pdf",
+"Benefits Enrollment Guide - Commercial Sector.pdf",
+"Benefits Enrollment Guide - Corporate Operations.pdf",
+"Benefits Enrollment Guide - Cybersecurity Division.pdf",
+"Benefits Enrollment Guide - Digital Transformation.pdf",
+"Benefits Enrollment Guide - Emerging Markets.pdf",
+"Benefits Enrollment Guide - Enterprise Solutions.pdf",
+"Benefits Enrollment Guide - Federal Services.pdf",
+"Benefits Enrollment Guide - Finance Department.pdf",
+"Benefits Enrollment Guide - Financial Services.pdf",
+"Benefits Enrollment Guide - Healthcare Division.pdf",
+"Benefits Enrollment Guide - Human Resources.pdf",
+"Benefits Enrollment Guide - Infrastructure Services.pdf",
+"Benefits Enrollment Guide - IT Services.pdf",
+"Benefits Enrollment Guide - Legal & Compliance.pdf",
+"Benefits Enrollment Guide - Shared Services.pdf",
+"Benefits Enrollment Guide - State & Local Government.pdf",
+"Benefits Enrollment Guide - Strategic Programs.pdf",
+"Benefits Enrollment Guide - Technology Consulting.pdf",
+"Client Onboarding Checklist - Business Process Outsourcing.pdf",
+"Client Onboarding Checklist - Cloud Services.pdf",
+"Client Onboarding Checklist - Commercial Sector.pdf",
+"Client Onboarding Checklist - Corporate Operations.pdf",
+"Client Onboarding Checklist - Cybersecurity Division.pdf",
+"Client Onboarding Checklist - Digital Transformation.pdf",
+"Client Onboarding Checklist - Emerging Markets.pdf",
+"Client Onboarding Checklist - Enterprise Solutions.pdf",
+"Client Onboarding Checklist - Federal Services.pdf",
+"Client Onboarding Checklist - Finance Department.pdf",
+"Client Onboarding Checklist - Financial Services.pdf",
+"Client Onboarding Checklist - Healthcare Division.pdf",
+"Client Onboarding Checklist - Human Resources.pdf",
+"Client Onboarding Checklist - Infrastructure Services.pdf",
+"Client Onboarding Checklist - IT Services.pdf",
+"Client Onboarding Checklist - Legal & Compliance.pdf",
+"Client Onboarding Checklist - Shared Services.pdf",
+"Client Onboarding Checklist - State & Local Government.pdf",
+"Client Onboarding Checklist - Strategic Programs.pdf",
+"Client Onboarding Checklist - Technology Consulting.pdf",
+"Cybersecurity Incident Reporting Process - Business Process Outsourcing.pdf",
+"Cybersecurity Incident Reporting Process - Cloud Services.pdf",
+"Cybersecurity Incident Reporting Process - Commercial Sector.pdf",
+"Cybersecurity Incident Reporting Process - Corporate Operations.pdf",
+"Cybersecurity Incident Reporting Process - Cybersecurity Division.pdf",
+"Cybersecurity Incident Reporting Process - Digital Transformation.pdf",
+"Cybersecurity Incident Reporting Process - Emerging Markets.pdf",
+"Cybersecurity Incident Reporting Process - Enterprise Solutions.pdf",
+"Cybersecurity Incident Reporting Process - Federal Services.pdf",
+"Cybersecurity Incident Reporting Process - Finance Department.pdf",
+"Cybersecurity Incident Reporting Process - Financial Services.pdf",
+"Cybersecurity Incident Reporting Process - Healthcare Division.pdf",
+"Cybersecurity Incident Reporting Process - Human Resources.pdf",
+"Cybersecurity Incident Reporting Process - Infrastructure Services.pdf",
+"Cybersecurity Incident Reporting Process - IT Services.pdf",
+"Cybersecurity Incident Reporting Process - Legal & Compliance.pdf",
+"Cybersecurity Incident Reporting Process - Shared Services.pdf",
+"Cybersecurity Incident Reporting Process - State & Local Government.pdf",
+"Cybersecurity Incident Reporting Process - Strategic Programs.pdf",
+"Cybersecurity Incident Reporting Process - Technology Consulting.pdf",
+"Expense Approval Workflow - Business Process Outsourcing.pdf",
+"Expense Approval Workflow - Cloud Services.pdf",
+"Expense Approval Workflow - Commercial Sector.pdf",
+"Expense Approval Workflow - Corporate Operations.pdf",
+"Expense Approval Workflow - Cybersecurity Division.pdf",
+"Expense Approval Workflow - Digital Transformation.pdf",
+"Expense Approval Workflow - Emerging Markets.pdf",
+"Expense Approval Workflow - Enterprise Solutions.pdf",
+"Expense Approval Workflow - Federal Services.pdf",
+"Expense Approval Workflow - Finance Department.pdf",
+"Expense Approval Workflow - Financial Services.pdf",
+"Expense Approval Workflow - Healthcare Division.pdf",
+"Expense Approval Workflow - Human Resources.pdf",
+"Expense Approval Workflow - Infrastructure Services.pdf",
+"Expense Approval Workflow - IT Services.pdf",
+"Expense Approval Workflow - Legal & Compliance.pdf",
+"Expense Approval Workflow - Shared Services.pdf",
+"Expense Approval Workflow - State & Local Government.pdf",
+"Expense Approval Workflow - Strategic Programs.pdf",
+"Expense Approval Workflow - Technology Consulting.pdf",
+"Performance Review Framework - Business Process Outsourcing.pdf",
+"Performance Review Framework - Cloud Services.pdf",
+"Performance Review Framework - Commercial Sector.pdf",
+"Performance Review Framework - Corporate Operations.pdf",
+"Performance Review Framework - Cybersecurity Division.pdf",
+"Performance Review Framework - Digital Transformation.pdf",
+"Performance Review Framework - Emerging Markets.pdf",
+"Performance Review Framework - Enterprise Solutions.pdf",
+"Performance Review Framework - Federal Services.pdf",
+"Performance Review Framework - Finance Department.pdf",
+"Performance Review Framework - Financial Services.pdf",
+"Performance Review Framework - Healthcare Division.pdf",
+"Performance Review Framework - Human Resources.pdf",
+"Performance Review Framework - Infrastructure Services.pdf",
+"Performance Review Framework - IT Services.pdf",
+"Performance Review Framework - Legal & Compliance.pdf",
+"Performance Review Framework - Shared Services.pdf",
+"Performance Review Framework - State & Local Government.pdf",
+"Performance Review Framework - Strategic Programs.pdf",
+"Performance Review Framework - Technology Consulting.pdf",
+"Remote Work Policy - Business Process Outsourcing.pdf",
+"Remote Work Policy - Cloud Services.pdf",
+"Remote Work Policy - Commercial Sector.pdf",
+"Remote Work Policy - Corporate Operations.pdf",
+"Remote Work Policy - Cybersecurity Division.pdf",
+"Remote Work Policy - Digital Transformation.pdf",
+"Remote Work Policy - Emerging Markets.pdf",
+"Remote Work Policy - Enterprise Solutions.pdf",
+"Remote Work Policy - Federal Services.pdf",
+"Remote Work Policy - Finance Department.pdf",
+"Remote Work Policy - Financial Services.pdf",
+"Remote Work Policy - Healthcare Division.pdf",
+"Remote Work Policy - Human Resources.pdf",
+"Remote Work Policy - Infrastructure Services.pdf",
+"Remote Work Policy - IT Services.pdf",
+"Remote Work Policy - Legal & Compliance.pdf",
+"Remote Work Policy - Shared Services.pdf",
+"Remote Work Policy - State & Local Government.pdf",
+"Remote Work Policy - Strategic Programs.pdf",
+"Remote Work Policy - Technology Consulting.pdf",
+"Travel Reimbursement Guidelines - Business Process Outsourcing.pdf",
+"Travel Reimbursement Guidelines - Cloud Services.pdf",
+"Travel Reimbursement Guidelines - Commercial Sector.pdf",
+"Travel Reimbursement Guidelines - Corporate Operations.pdf",
+"Travel Reimbursement Guidelines - Cybersecurity Division.pdf",
+"Travel Reimbursement Guidelines - Digital Transformation.pdf",
+"Travel Reimbursement Guidelines - Emerging Markets.pdf",
+"Travel Reimbursement Guidelines - Enterprise Solutions.pdf",
+"Travel Reimbursement Guidelines - Federal Services.pdf",
+"Travel Reimbursement Guidelines - Finance Department.pdf",
+"Travel Reimbursement Guidelines - Financial Services.pdf",
+"Travel Reimbursement Guidelines - Healthcare Division.pdf",
+"Travel Reimbursement Guidelines - Human Resources.pdf",
+"Travel Reimbursement Guidelines - Infrastructure Services.pdf",
+"Travel Reimbursement Guidelines - IT Services.pdf",
+"Travel Reimbursement Guidelines - Legal & Compliance.pdf",
+"Travel Reimbursement Guidelines - Shared Services.pdf",
+"Travel Reimbursement Guidelines - State & Local Government.pdf",
+"Travel Reimbursement Guidelines - Strategic Programs.pdf",
+"Travel Reimbursement Guidelines - Technology Consulting.pdf"
+];
+
+      /* ---------- small utilities ---------- */
+      function loadDb() {
+        try { const raw = localStorage.getItem(DB_KEY); return raw ? JSON.parse(raw) : { docs: {} }; }
+        catch (e) { console.error('loadDb error', e); return { docs: {} }; }
+      }
+      function saveDb(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+      function makeId(filename) { return filename.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_\-\.]/g,'').toLowerCase(); }
+      function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>"']/g,(m)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+      function parseFilenameToMeta(filename){
+        const name = filename.replace(/\.pdf$/i,'');
+        const parts = name.split(' - ');
+        let title = parts[0] || name;
+        let department = parts[1] || 'General';
+        title = title.replace(/^2026\s*/i,'').trim();
+        const lastValidated = 'Feb 27, 2026';
+        return { title, department, lastValidated };
       }
 
-      function buildHistoryCard(item) {
-        const isUser = item.role === "user";
-        const title = isUser ? "You asked" : "Kathleen answered";
-        const source = isUser ? "Prompt" : "Flask + Ollama + Supabase";
-        const statusClass = isUser ? "amber" : "green";
-        const statusLabel = isUser ? "User message" : "Generated response";
+      /* ---------- manifest loader (preferred) ---------- */
+      async function loadManifest() {
+        try {
+          const resp = await fetch('doc_src/manifest.json', { cache: 'no-cache' });
+          if (!resp.ok) { console.info('manifest not found (status)', resp.status); return null; }
+          const json = await resp.json();
+          if (Array.isArray(json)) return json;
+          console.warn('manifest.json present but not an array; ignoring.');
+          return null;
+        } catch (err) {
+          console.info('no manifest.json or failed to load it:', err && err.message);
+          return null;
+        }
+      }
 
+      /* ---------- probing helpers ---------- */
+      async function tryHeadThenGet(url) {
+        try { const h = await fetch(url, { method: 'HEAD' }); if (h && h.ok) return true; } catch (e) { /* HEAD may fail */ }
+        try { const g = await fetch(url, { method: 'GET' }); if (g && (g.ok || g.type === 'opaque')) return true; } catch (e) {}
+        return false;
+      }
+      function buildPathVariants(folder, filename) {
+        const raw = `doc_src/${folder}/${filename}`;
+        const wholeEncoded = encodeURI(raw);
+        const filenameEncoded = 'doc_src/' + folder + '/' + encodeURIComponent(filename);
+        const filenameEncodedSpaces = filenameEncoded.replace(/%20/g, ' ');
+        return [raw, wholeEncoded, filenameEncodedSpaces, filenameEncoded].filter((v,i,a)=>a.indexOf(v)===i);
+      }
+
+      async function probeAcrossSources(filename) {
+        const tried = [];
+        for (const src of SOURCES) {
+          const folderVariants = [src, src.toLowerCase(), src.charAt(0).toUpperCase()+src.slice(1).toLowerCase()].filter((v,i,a)=>a.indexOf(v)===i);
+          for (const folder of folderVariants) {
+            const paths = buildPathVariants(folder, filename);
+            for (const p of paths) {
+              tried.push({ folder, path: p });
+              // eslint-disable-next-line no-await-in-loop
+              const ok = await tryHeadThenGet(p);
+              if (ok) {
+                console.info('[probe] FOUND', filename, 'in', folder, '=>', p);
+                return { found: true, path: p, source: folder, tried };
+              }
+            }
+          }
+        }
+        console.warn('[probe] NOT FOUND:', filename, 'tried', tried.length, 'variants');
+        return { found: false, tried };
+      }
+
+      /* ---------- DB entry creation (uses manifest if present, otherwise probing) ---------- */
+      async function ensureDocEntry(filename, manifestMap) {
+        const db = loadDb(); db.docs = db.docs || {};
+        const id = makeId(filename);
+        if (db.docs[id]) return db.docs[id];
+
+        let entrySource = null;
+        let entryPath = null;
+
+        if (manifestMap && manifestMap[filename]) {
+          entrySource = manifestMap[filename].source;
+          entryPath = manifestMap[filename].path;
+          console.info('[manifest] mapping', filename, '=>', entryPath);
+        } else {
+          const probe = await probeAcrossSources(filename);
+          if (probe && probe.found) {
+            entrySource = probe.source;
+            entryPath = probe.path;
+          } else {
+            entrySource = 'Sharepoint';
+            entryPath = `doc_src/${entrySource}/${encodeURIComponent(filename).replace(/%20/g,' ')}`;
+            console.warn('[fallback] using default path for', filename, '=>', entryPath);
+          }
+        }
+
+        const meta = parseFilenameToMeta(filename);
+        const sensitivityChoices = ['External','Internal','External — Limited'];
+
+        const newEntry = {
+          id,
+          filename,
+          path: entryPath,
+          source: entrySource,
+          title: meta.title,
+          department: meta.department,
+          lastValidated: meta.lastValidated,
+          status: Math.random() > 0.6 ? 'Approved' : 'Needs review',
+          sensitivity: sensitivityChoices[Math.floor(Math.random()*sensitivityChoices.length)],
+          dateRange: { start: null, end: null },
+          votesUp: Math.floor(Math.random()*30)+1,
+          votesDown: Math.floor(Math.random()*6),
+          userVote: 0
+        };
+
+        db.docs[id] = newEntry;
+        saveDb(db);
+        return newEntry;
+      }
+
+      /* ---------- Rendering ---------- */
+      function renderSensitivityPill(s) {
+        if (!s) return '';
+        const key = s.toLowerCase();
+        if (key === 'external') return `<span class="pill blue"><span class="dot"></span> External</span>`;
+        if (key === 'internal') return `<span class="pill gray"><span class="dot"></span> Internal</span>`;
+        if (key.includes('limited')) return `<span class="pill purple"><span class="dot"></span> External — Limited</span>`;
+        return `<span class="pill gray"><span class="dot"></span>${escapeHtml(s)}</span>`;
+      }
+      function renderStatusPill(s) {
+        if (s === 'Approved') return `<span class="pill green"><span class="dot"></span> Approved</span>`;
+        return `<span class="pill amber"><span class="dot"></span> Needs review</span>`;
+      }
+      function formatDateRange(range) {
+        if (!range) return '';
+        const { start, end } = range;
+        if (!start && !end) return '';
+        if (start && end) return `${start} → ${end}`;
+        if (start) return `From ${start}`;
+        return `Until ${end}`;
+      }
+
+      function cardHtml(doc) {
         return `
-          <article class="result">
-            <h3>
-              ${title}
-            </h3>
-
+          <article class="result" data-id="${doc.id}" data-pdf="${doc.path}">
+            <h3>${escapeHtml(doc.title)} <span class="dim">–</span> ${escapeHtml(doc.department)} <span class="dim">(Document)</span></h3>
             <div class="meta">
-              <span><strong>${source}</strong> <span class="dot">&middot;</span> Current session</span>
-              <span class="dot">&middot;</span>
+              <span><strong>${escapeHtml(doc.source)}</strong> <span class="dot">·</span> Last validated: ${escapeHtml(doc.lastValidated)}</span>
+              <span class="dot">·</span>
+              <span>Approved sensitivity:</span>
+              ${renderSensitivityPill(doc.sensitivity)}
+              <span class="dot">·</span>
               <span>Status:</span>
-              <span class="pill ${statusClass}"><span class="dot"></span> ${statusLabel}</span>
+              ${renderStatusPill(doc.status)}
+              ${doc.dateRange ? `<span class="dot">·</span><span>Range:</span><strong>${escapeHtml(formatDateRange(doc.dateRange))}</strong>` : ''}
             </div>
 
             <div class="result-footer">
-              <div class="footer-left">
-                <div>${escapeHtml(item.content)}</div>
+              <div class="footer-left" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <button class="btn view-btn" type="button">View document</button>
+                <button class="btn edit-sensitivity" type="button">Edit sensitivity</button>
+                <button class="btn edit-meta" type="button">Edit metadata</button>
               </div>
 
               <div class="vote">
-                <button class="counter counter--up vote-btn" type="button" data-delta="1" aria-pressed="false">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11a2 2 0 0 0 2-2l1-7a2 2 0 0 0-2-2h-5z"></path>
-                  </svg>
-                  <span class="vote-count">0</span>
-                </button>
-                <button class="counter counter--down vote-btn" type="button" data-delta="-1" aria-pressed="false">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H6a2 2 0 0 0-2 2l-1 7a2 2 0 0 0 2 2h5z"></path>
-                  </svg>
-                  <span class="vote-count">0</span>
-                </button>
+                <button class="counter counter--up vote-btn" data-id="${doc.id}" data-delta="1" aria-pressed="false">▲ <span class="vote-count">${doc.votesUp}</span></button>
+                <button class="counter counter--down vote-btn" data-id="${doc.id}" data-delta="-1" aria-pressed="false">▼ <span class="vote-count">${doc.votesDown}</span></button>
               </div>
             </div>
           </article>
         `;
       }
 
-      function renderResults(items) {
-        if (!resultsEl) return;
-        resultsEl.innerHTML = items.map(buildHistoryCard).join("");
+      /* ---------- Modal viewer with fallback ---------- */
+      function openPdfModalWithFallback(pdfUrl, title) {
+        const modal = document.getElementById('pdfModal');
+        const frame = document.getElementById('pdfFrame');
+        const titleEl = document.getElementById('pdfTitle');
+        const openNewTab = document.getElementById('openNewTab');
+
+        // encode path segments but preserve readability if needed
+        const safe = pdfUrl.split('/').map(seg => encodeURIComponent(decodeURIComponent(seg)).replace(/%20/g,' ')).join('/');
+
+        frame.src = safe;
+        titleEl.textContent = title || 'Document';
+        openNewTab.href = safe;
+        modal.classList.add('is-open'); modal.setAttribute('aria-hidden','false'); document.body.style.overflow = 'hidden';
+
+        let loaded = false;
+        const onload = () => { loaded = true; frame.removeEventListener('load', onload); };
+        frame.addEventListener('load', onload);
+
+        setTimeout(() => {
+          if (loaded) return;
+          // fallback: open in new tab
+          window.open(safe, '_blank');
+          frame.src = ''; modal.classList.remove('is-open'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = '';
+          frame.removeEventListener('load', onload);
+        }, 2200);
       }
 
-      function renderEmptyState() {
-        if (!resultsEl) return;
-        resultsEl.innerHTML = '<div class="empty-state">Ask a question to start a Flask-backed RAG conversation.</div>';
-      }
+      /* ---------- UI handlers (delegated) ---------- */
+      function attachHandlers() {
+        const results = document.querySelector('.results');
 
-      function renderLoadingState() {
-        if (!resultsEl) return;
-        resultsEl.innerHTML = `
-          <div class="loading-state" role="status" aria-live="polite">
-            <div class="loading-spinner" aria-hidden="true"></div>
-            <p class="loading-title">Consulting Ollama and Supabase...</p>
-            <p class="loading-copy">This can take a bit while the app generates embeddings, searches your documents, and drafts a response.</p>
-          </div>
-        `;
-      }
-
-      function renderHistory(history) {
-        const visible = history.filter((item) => item.role !== "system");
-        if (!visible.length) {
-          renderEmptyState();
-          return;
-        }
-        renderResults(visible);
-        bindVoteButtons();
-      }
-
-      function updateCount(button, delta) {
-        const countEl = button.querySelector(".vote-count");
-        const current = Number(countEl?.textContent || "0");
-        if (countEl) countEl.textContent = String(current + delta);
-      }
-
-      function bindVoteButtons() {
-        document.querySelectorAll(".vote").forEach((group) => {
-          const upBtn = group.querySelector(".counter--up");
-          const downBtn = group.querySelector(".counter--down");
-          if (!upBtn || !downBtn) return;
-
-          upBtn.addEventListener("click", () => {
-            if (upBtn.classList.contains("is-active")) return;
-
-            if (downBtn.classList.contains("is-active")) {
-              updateCount(downBtn, -1);
-              downBtn.classList.remove("is-active");
-              downBtn.setAttribute("aria-pressed", "false");
-            }
-
-            updateCount(upBtn, 1);
-            upBtn.classList.add("is-active");
-            upBtn.setAttribute("aria-pressed", "true");
-          });
-
-          downBtn.addEventListener("click", () => {
-            if (downBtn.classList.contains("is-active")) return;
-
-            if (upBtn.classList.contains("is-active")) {
-              updateCount(upBtn, -1);
-              upBtn.classList.remove("is-active");
-              upBtn.setAttribute("aria-pressed", "false");
-            }
-
-            updateCount(downBtn, 1);
-            downBtn.classList.add("is-active");
-            downBtn.setAttribute("aria-pressed", "true");
-          });
-        });
-      }
-
-      async function loadHistory() {
-        try {
-          const response = await fetch("/api/chat/history");
-          const payload = await response.json();
-          renderHistory(payload.history || []);
-        } catch (error) {
-          renderEmptyState();
-        }
-      }
-
-      async function runSearch() {
-        const query = queryInput.value.trim();
-        if (!query) return;
-
-        statusText.textContent = "";
-        renderLoadingState();
-        searchButton.disabled = true;
-
-        try {
-          const response = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query })
-          });
-          const payload = await response.json();
-          if (!response.ok) {
-            throw new Error(payload.error || "Request failed.");
+        // delegated click handling for buttons in cards
+        results.addEventListener('click', (ev) => {
+          const view = ev.target.closest('.view-btn');
+          if (view) {
+            const article = view.closest('.result'); if (!article) return;
+            const pdf = article.getAttribute('data-pdf'); const title = article.querySelector('h3')?.textContent?.trim();
+            openPdfModalWithFallback(pdf, title); return;
           }
-          renderHistory(payload.history || []);
-        } catch (error) {
-          resultsEl.innerHTML = `<div class="empty-state">Request failed: ${escapeHtml(error.message)}</div>`;
-        } finally {
-          searchButton.disabled = false;
-          bindVoteButtons();
+
+          const sens = ev.target.closest('.edit-sensitivity');
+          if (sens) {
+            const article = sens.closest('.result'); if (!article) return;
+            const id = article.getAttribute('data-id'); openEditModal(id, { focusField: 'sensitivity' }); return;
+          }
+
+          const metaBtn = ev.target.closest('.edit-meta');
+          if (metaBtn) {
+            const article = metaBtn.closest('.result'); if (!article) return;
+            const id = article.getAttribute('data-id'); openEditModal(id); return;
+          }
+        });
+
+        // votes (global handler)
+        document.addEventListener('click', (ev) => {
+          const up = ev.target.closest('.counter--up');
+          const down = ev.target.closest('.counter--down');
+          const btn = up || down;
+          if (!btn) return;
+          const id = btn.dataset.id; const delta = Number(btn.dataset.delta || 0);
+          handleVote(id, delta);
+        });
+
+        // modal close
+        const closePdfBtn = document.getElementById('closePdf');
+        if (closePdfBtn) closePdfBtn.addEventListener('click', () => {
+          const modal = document.getElementById('pdfModal'); const frame = document.getElementById('pdfFrame');
+          frame.src = ''; modal.classList.remove('is-open'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = '';
+        });
+        document.getElementById('pdfModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) document.getElementById('closePdf').click(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('pdfModal').classList.contains('is-open')) document.getElementById('closePdf').click(); });
+
+        // small controls (export/import/reset/refresh/search)
+        const exportBtn = document.getElementById('exportDb');
+        if (exportBtn) exportBtn.addEventListener('click', exportDb);
+        const importInput = document.getElementById('importDbFile');
+        if (importInput) importInput.addEventListener('change', (e)=>{ const f = e.target.files[0]; if (f) importDbFile(f); });
+        const resetBtn = document.getElementById('resetDb'); if (resetBtn) resetBtn.addEventListener('click', ()=>{ if(confirm('Reset local DB?')) { localStorage.removeItem(DB_KEY); init(true); }});
+        const refreshBtn = document.getElementById('refreshDocs'); if (refreshBtn) refreshBtn.addEventListener('click', ()=> init(true));
+        const searchBtn = document.getElementById('searchBtn'); if (searchBtn) searchBtn.addEventListener('click', applySearch);
+        const searchBox = document.getElementById('searchBox'); if (searchBox) searchBox.addEventListener('keyup', (e)=>{ if (e.key==='Enter') applySearch(); });
+
+        // modal edit handlers
+        document.getElementById('saveEditMeta').addEventListener('click', () => {
+          const id = document.getElementById('editDocId').value;
+          const db = loadDb(); const entry = db.docs && db.docs[id];
+          if (!entry) return alert('Document not found.');
+
+          const sensitivity = document.getElementById('editSensitivity').value;
+          const status = document.getElementById('editStatus').value;
+          const start = document.getElementById('editStart').value || null;
+          const end = document.getElementById('editEnd').value || null;
+
+          entry.sensitivity = sensitivity;
+          entry.status = status;
+          entry.dateRange = { start, end };
+
+          saveDb(db);
+          refreshCardUI(id);
+          closeEditModal();
+        });
+
+        document.getElementById('cancelEditMeta').addEventListener('click', closeEditModal);
+        document.getElementById('closeEditMeta').addEventListener('click', closeEditModal);
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && document.getElementById('editMetaModal').style.display === 'flex') {
+            closeEditModal();
+          }
+        });
+      }
+
+      /* ---------- votes and persistence ---------- */
+      function handleVote(id, delta) {
+        const db = loadDb(); const entry = db.docs && db.docs[id]; if (!entry) return;
+        if (entry.userVote === delta) return; // idempotent
+        if (entry.userVote === -delta) {
+          if (delta === 1) entry.votesDown = Math.max(0, entry.votesDown-1);
+          else entry.votesUp = Math.max(0, entry.votesUp-1);
+        }
+        if (delta === 1) entry.votesUp += 1;
+        else if (delta === -1) entry.votesDown += 1;
+        entry.userVote = delta;
+        saveDb(db);
+        refreshCardUI(id);
+      }
+
+      function refreshCardUI(id) {
+        const db = loadDb(); const entry = db.docs && db.docs[id]; if (!entry) return;
+        const article = document.querySelector(`.result[data-id="${id}"]`); if (!article) return;
+        const upSpan = article.querySelector('.counter--up .vote-count'); const downSpan = article.querySelector('.counter--down .vote-count');
+        if (upSpan) upSpan.textContent = entry.votesUp; if (downSpan) downSpan.textContent = entry.votesDown;
+        const upBtn = article.querySelector('.counter--up'); const downBtn = article.querySelector('.counter--down');
+        if (entry.userVote === 1) { upBtn.classList.add('is-active'); downBtn.classList.remove('is-active'); }
+        else if (entry.userVote === -1) { downBtn.classList.add('is-active'); upBtn.classList.remove('is-active'); }
+        else { upBtn.classList.remove('is-active'); downBtn.classList.remove('is-active'); }
+
+        // update meta display (status/sensitivity/dateRange)
+        const meta = article.querySelector('.meta');
+        if (meta) {
+          meta.innerHTML = `<span><strong>${escapeHtml(entry.source)}</strong> <span class="dot">·</span> Last validated: ${escapeHtml(entry.lastValidated)}</span>
+            <span class="dot">·</span>
+            <span>Approved sensitivity:</span>
+            ${renderSensitivityPill(entry.sensitivity)}
+            <span class="dot">·</span>
+            <span>Status:</span>
+            ${renderStatusPill(entry.status)}
+            ${entry.dateRange ? `<span class="dot">·</span><span>Range:</span><strong>${escapeHtml(formatDateRange(entry.dateRange))}</strong>` : ''}`;
         }
       }
 
-      searchButton.addEventListener("click", runSearch);
-      queryInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          runSearch();
-        }
-      });
+      /* ---------- edit modal (replacement for prompt flow) ---------- */
+      function openEditModal(id, opts = {}) {
+        const db = loadDb();
+        const entry = db.docs && db.docs[id];
+        if (!entry) return alert('Document not found in DB.');
 
-      document.querySelectorAll(".quick-btn").forEach((button) => {
-        button.addEventListener("click", () => {
-          queryInput.value = button.textContent.trim();
-          runSearch();
+        document.getElementById('editDocId').value = id;
+        document.getElementById('editDocTitle').textContent = entry.title + ' — ' + entry.department;
+        document.getElementById('editSensitivity').value = entry.sensitivity || 'Internal';
+        document.getElementById('editStatus').value = entry.status || 'Needs review';
+        document.getElementById('editStart').value = entry.dateRange?.start || '';
+        document.getElementById('editEnd').value = entry.dateRange?.end || '';
+
+        const modal = document.getElementById('editMetaModal');
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+
+        setTimeout(()=>{
+          if (opts.focusField === 'sensitivity') document.getElementById('editSensitivity').focus();
+          else document.getElementById('editSensitivity').focus();
+        },50);
+      }
+      function closeEditModal() {
+        const modal = document.getElementById('editMetaModal');
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+
+      /* ---------- small helpers: sensitivity quick prompt (kept optional) ---------- */
+      function promptAndSetSensitivity(id) {
+        const db = loadDb(); const e = db.docs && db.docs[id]; if (!e) return;
+        const choice = prompt('Set sensitivity (External / Internal / External — Limited):', e.sensitivity || 'Internal');
+        if (!choice) return;
+        e.sensitivity = choice.trim();
+        saveDb(db); refreshCardUI(id);
+      }
+
+      /* ---------- export / import helpers ---------- */
+      function exportDb() {
+        const db = loadDb();
+        const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob); const a = document.createElement('a');
+        a.href = url; a.download = 'ask_kathleen_db.json'; a.click(); URL.revokeObjectURL(url);
+      }
+      function importDbFile(file) {
+        const r = new FileReader();
+        r.onload = (ev) => {
+          try {
+            const parsed = JSON.parse(ev.target.result);
+            if (parsed && parsed.docs) {
+              localStorage.setItem(DB_KEY, JSON.stringify(parsed));
+              alert('DB imported — refreshing view.');
+              init(true);
+            } else alert('Invalid DB file.');
+          } catch (err) { alert('Failed to parse JSON: ' + err.message); }
+        };
+        r.readAsText(file);
+      }
+
+      /* ---------- search + filters ---------- */
+      function applySearch() {
+        const q = document.getElementById('searchBox')?.value?.trim().toLowerCase() || '';
+        const loc = document.getElementById('filter-location')?.value || '';
+        const start = document.getElementById('filter-start-date')?.value || '';
+        const end = document.getElementById('filter-end-date')?.value || '';
+        const status = document.getElementById('filter-status')?.value || '';
+        const sensitivity = document.getElementById('filter-sensitivity')?.value || '';
+
+        document.querySelectorAll('.results .result').forEach(r => {
+          const id = r.getAttribute('data-id');
+          const db = loadDb();
+          const entry = db.docs && db.docs[id];
+          if (!entry) { r.style.display = 'none'; return; }
+
+          let visible = true;
+          // query text matches title/department/filename
+          if (q) {
+            const txt = (entry.title + ' ' + entry.department + ' ' + (entry.filename||'')).toLowerCase();
+            if (!txt.includes(q)) visible = false;
+          }
+          // location filter
+          if (visible && loc) {
+            if ((entry.source || '').toLowerCase() !== loc.toLowerCase()) visible = false;
+          }
+          // status filter
+          if (visible && status) {
+            if ((entry.status || '').toLowerCase() !== status.toLowerCase()) visible = false;
+          }
+          // sensitivity filter
+          if (visible && sensitivity) {
+            if ((entry.sensitivity || '').toLowerCase() !== sensitivity.toLowerCase()) visible = false;
+          }
+          // date range filtering (entry.dateRange {start,end} are yyyy-mm-dd or null)
+          if (visible && (start || end)) {
+            const es = entry.dateRange?.start || null;
+            const ee = entry.dateRange?.end || null;
+            // if entry has no dates, exclude when a filter range is provided
+            if (!es && !ee) visible = false;
+            else {
+              if (start && es && es < start) visible = false;
+              if (end && ee && ee > end) visible = false;
+            }
+          }
+
+          r.style.display = visible ? '' : 'none';
         });
-      });
+      }
 
-      loadHistory();
+      /* ---------- main init flow ---------- */
+      async function init(forceRefresh = false) {
+        const resultsEl = document.querySelector('.results');
+        if (!resultsEl) return console.warn('No .results element found in DOM');
+        resultsEl.innerHTML = '<div style="text-align:center;color:var(--muted)">Discovering documents…</div>';
+
+        const db = loadDb();
+        db.docs = db.docs || {};
+
+        // load manifest if present
+        const manifestArr = await loadManifest();
+        let manifestMap = null;
+        if (manifestArr) {
+          manifestMap = {};
+          for (const item of manifestArr) {
+            if (item && item.filename) manifestMap[item.filename] = { source: item.source || 'Sharepoint', path: item.path };
+          }
+        }
+
+        // build DB entries if missing or forceRefresh
+        if (!forceRefresh && Object.keys(db.docs||{}).length >= ALL_FILES.length) {
+          console.info('Using existing DB (no force refresh).');
+        } else {
+          for (const fn of ALL_FILES) {
+            // eslint-disable-next-line no-await-in-loop
+            await ensureDocEntry(fn, manifestMap);
+          }
+        }
+
+        // pick 10 random entries
+        const currentDb = loadDb();
+        const docsArr = Object.values(currentDb.docs || {});
+        // shuffle
+        for (let i = docsArr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [docsArr[i], docsArr[j]] = [docsArr[j], docsArr[i]];
+        }
+        const chosen = docsArr.slice(0, Math.min(10, docsArr.length));
+        resultsEl.innerHTML = chosen.map(cardHtml).join('');
+        attachHandlers();
+        // refresh UI states from DB (votes, pills)
+        chosen.forEach(d => refreshCardUI(d.id));
+
+        console.table(Object.values(currentDb.docs || {}).map(d => ({ id: d.id, filename: d.filename, source: d.source, path: d.path, status: d.status, sensitivity: d.sensitivity, start:d.dateRange?.start||'', end:d.dateRange?.end||'' })));
+      }
+
+      /* ---------- kick off ---------- */
+      document.addEventListener('DOMContentLoaded', () => {
+        attachHandlers();
+        init(false);
+      });
     </script>
   </body>
 </html>
