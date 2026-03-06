@@ -125,9 +125,9 @@ def query_ollama(query: str):
     # (which Streamlit handles)
     result = agent_executor.invoke({
         "input": query, 
+        
     })
 
     ai_message = result
+    return ai_message
     # print("AI Message:", ai_message)
-
-query_ollama("Tell me about the PSA Claim Guidelines")
