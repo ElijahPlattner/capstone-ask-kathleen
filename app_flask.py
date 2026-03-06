@@ -1,8 +1,10 @@
-# app_flask.py
-from flask import Flask, send_from_directory, request, jsonify, abort
-from flask_cors import CORS
 import os
+
+from flask import Flask, abort, jsonify, request, send_from_directory, session
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
+
+from rag_backend import ask_question
 
 FRONTEND_DIR = "frontend"
 UPLOAD_DIR = "uploads"
@@ -12,6 +14,7 @@ ALLOWED_EXTENSIONS = None  # set to a set like {'pdf','docx'} to restrict
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
+app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY", "dev-secret-change-me")
 CORS(app)  # allow all origins for local dev; restrict in prod
 
 def allowed(filename):
@@ -29,47 +32,32 @@ def serve_frontend(path):
         return send_from_directory(FRONTEND_DIR, path)
     return send_from_directory(FRONTEND_DIR, "index.html")
 
-@app.route("/api/search", methods=["POST"])
-def api_search():
-    """
-    Example search endpoint. Replace the mock logic with your real search/indexing logic.
-    Expects JSON: { "query": "..." }
-    Returns: { "results": [ {...}, ... ] }
-    """
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    payload = request.get_json(silent=True) or {}
+    query = payload.get("query", "").strip()
+    if not query:
+        return jsonify({"error": "query is required"}), 400
+
+    history = session.get("chat_history", [])
     try:
-        payload = request.get_json(force=True)
-        q = (payload or {}).get("query", "").strip()
-    except Exception:
-        q = ""
+        answer, updated_history = ask_question(query, history)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
 
-    # --- Mock result(s). Replace with DB / index calls ---
-    sample = [
-        {
-            "title": "US 2026 Statutory Holidays Calendar",
-            "source": "Intranet",
-            "date_added": "Oct 2025",
-            "status": "Approved",
-            "likes": 21,
-            "dislikes": 2,
-            "link": "#"
-        },
-        {
-            "title": "Company Holiday Policy 2026",
-            "source": "HR Docs",
-            "date_added": "Nov 2025",
-            "status": "Approved",
-            "likes": 7,
-            "dislikes": 0,
-            "link": "#"
-        }
-    ]
+    session["chat_history"] = updated_history
+    return jsonify({"answer": answer, "history": updated_history})
 
-    if q:
-        filtered = [r for r in sample if q.lower() in r["title"].lower()]
-    else:
-        filtered = sample
 
-    return jsonify({"results": filtered})
+@app.route("/api/chat/history", methods=["GET"])
+def api_chat_history():
+    return jsonify({"history": session.get("chat_history", [])})
+
+
+@app.route("/api/chat/reset", methods=["POST"])
+def api_chat_reset():
+    session["chat_history"] = []
+    return jsonify({"ok": True})
 
 @app.route("/api/upload", methods=["POST"])
 def api_upload():
