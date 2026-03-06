@@ -49,13 +49,13 @@ vector_store = SupabaseVectorStore(
  
 # initiating llm
 # --- CHANGED: Using ChatOllama with the gpt-oss:20b model ---
-llm = ChatOllama(model="qwen3-vl:4b", base_url="http://localhost:11434")
+llm = ChatOllama(model="llama3.1:8b", base_url="http://localhost:11434")
 
 # pulling prompt from hub
 # --- CHANGED: Pulling the general 'react-chat' prompt for compatibility with Ollama ---
 # This prompt guides the model to use the 'retrieve' tool in a ReAct format.
 prompt = hub.pull("hwchase17/react-chat")
-prompt2 = PromptTemplate.from_template("You are a helpful AI assistant. Use the 'retrieve' tool to find information when needed.\n\n{chat_history}\n\nUser: {input}\nAssistant:")
+prompt2 = PromptTemplate.from_template("You are a helpful AI assistant. Use the 'retrieve' tool to find information when needed. At the start of your answer, include a short 'Sources' section listing the sources you used. \n\n{chat_history}\n\nUser: {input}\nAssistant:")
 
 
 # creating the retriever tool
@@ -91,7 +91,7 @@ st.title("🦜 Agentic RAG Chatbot (Ollama Powered)")
 if "messages" not in st.session_state:
     # Initialize with a system message to guide the agent's behavior
     st.session_state.messages = [
-        SystemMessage(content="You are an helpful, expert RAG assistant. Use the 'retrieve' tool to find information before answering, if necessary.")
+        SystemMessage(content="You are an helpful, expert RAG assistant. Use the 'retrieve' tool to find information before answering, if necessary. At the start of your answer, include a short 'Sources' section listing the sources you used.")
     ]
 
 # display chat messages from history on app rerun

@@ -21,7 +21,7 @@ supabase_key = os.environ.get("SUPABASE_SERVICE_KEY")
 supabase: Client = create_client(supabase_url, supabase_key)
 
 # initiate embeddings model
-embeddings = OllamaEmbeddings(model="llama3.1:8b", base_url="http://localhost:11434")
+embeddings = OllamaEmbeddings(model="llama3.1:8b")
 
 # load pdf docs from folder 'documents'
 loader = PyPDFDirectoryLoader("documents/document")
