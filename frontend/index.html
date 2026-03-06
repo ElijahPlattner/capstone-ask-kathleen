@@ -157,7 +157,30 @@
       }
       .btn.primary:hover{filter: brightness(.97)}
       .btn .mini{width:16px; height:16px}
+      
+      .meta {
+        margin-top:10px;
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+        align-items:center;
+        font-size:13px;
+      }
 
+      .meta-chip {
+        padding:6px 10px;
+        border-radius:999px;
+        background:#f1f5f9;
+        color:#334155;
+        border:1px solid rgba(2,6,23,.08);
+        font-weight:600;
+      }
+
+      .meta-chip.source {
+        background:rgba(59,130,246,.08);
+        border-color:rgba(59,130,246,.18);
+        color:#1e3a8a;
+      }
       /* Filters */
       .filters-menu{
         position:relative;
@@ -341,9 +364,9 @@
     <div class="app-shell">
       <aside class="left-sidebar">
         <p class="side-label" style="color:rgba(255,255,255,.9);margin-bottom:12px">Quick Search</p>
-        <button class="quick-btn" type="button">CRM migration</button>
-        <button class="quick-btn" type="button">Resource expansion</button>
-        <button class="quick-btn" type="button">Knowledge search</button>
+        <button class="quick-btn" data-query="Statutory Holiday">What are the 2026 Statutory Holidays?</button>
+        <button class="quick-btn" data-query="Cybersecurity">What are the best practices for cybersecurity?</button>
+        <button class="quick-btn" data-query="Client Onboarding Checklist ">How do I onboard my new clients?</button>
       </aside>
 
       <div class="content-shell">
@@ -393,6 +416,13 @@
                         </select>
                       </div>
 
+                      <div class="filter-field">
+                        <label for="filter-department">Department</label>
+                        <select id="filter-department">
+                          <option value="">Any department</option>
+                        </select>
+                      </div>
+
                       <div class="filter-range">
                         <div class="filter-field">
                           <label for="filter-start-date">Start date</label>
@@ -421,6 +451,12 @@
                           <option value="External">External</option>
                           <option value="External — Limited">External — Limited</option>
                         </select>
+                      </div>
+
+                      <div style="margin-top:14px; display:flex; justify-content:flex-end;">
+                        <button id="applyFilters" class="btn primary" type="button">
+                          Apply Filters
+                        </button>
                       </div>
                     </div>
                   </details>
@@ -710,6 +746,26 @@
         try { const raw = localStorage.getItem(DB_KEY); return raw ? JSON.parse(raw) : { docs: {} }; }
         catch (e) { console.error('loadDb error', e); return { docs: {} }; }
       }
+      function populateDepartmentFilter() {
+        const db = loadDb();
+        const select = document.getElementById("filter-department");
+        if (!select) return;
+
+        const departments = new Set();
+
+        Object.values(db.docs || {}).forEach(doc => {
+          if (doc.department) departments.add(doc.department);
+        });
+
+        const sorted = [...departments].sort();
+
+        sorted.forEach(dep => {
+          const option = document.createElement("option");
+          option.value = dep;
+          option.textContent = dep;
+          select.appendChild(option);
+        });
+      }
       function saveDb(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
       function makeId(filename) { return filename.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_\-\.]/g,'').toLowerCase(); }
       function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>"']/g,(m)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
@@ -849,14 +905,10 @@
           <article class="result" data-id="${doc.id}" data-pdf="${doc.path}">
             <h3>${escapeHtml(doc.title)} <span class="dim">–</span> ${escapeHtml(doc.department)} <span class="dim">(Document)</span></h3>
             <div class="meta">
-              <span><strong>${escapeHtml(doc.source)}</strong> <span class="dot">·</span> Last validated: ${escapeHtml(doc.lastValidated)}</span>
-              <span class="dot">·</span>
-              <span>Approved sensitivity:</span>
+              <span class="meta-chip source">${escapeHtml(doc.source)}</span>
+              <span class="meta-chip">Validated ${escapeHtml(doc.lastValidated)}</span>
               ${renderSensitivityPill(doc.sensitivity)}
-              <span class="dot">·</span>
-              <span>Status:</span>
               ${renderStatusPill(doc.status)}
-              ${doc.dateRange ? `<span class="dot">·</span><span>Range:</span><strong>${escapeHtml(formatDateRange(doc.dateRange))}</strong>` : ''}
             </div>
 
             <div class="result-footer">
@@ -906,7 +958,35 @@
       /* ---------- UI handlers (delegated) ---------- */
       function attachHandlers() {
         const results = document.querySelector('.results');
+        document.querySelectorAll('.quick-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const query = btn.dataset.query || btn.textContent.trim();
 
+            const searchBox = document.getElementById('searchBox');
+            if (searchBox) searchBox.value = query;
+
+            applySearch();
+          });
+        });
+        const applyBtn = document.getElementById('applyFilters');
+        if (applyBtn) {
+          applyBtn.addEventListener('click', () => {
+            applySearch();
+
+            // close the filters dropdown
+            const menu = document.querySelector('.filters-menu');
+            if (menu) menu.removeAttribute('open');
+          });
+        }
+
+        document.addEventListener('click', (e) => {
+          const menu = document.querySelector('.filters-menu');
+          if (!menu || !menu.hasAttribute('open')) return;
+
+          if (!menu.contains(e.target)) {
+            menu.removeAttribute('open');
+          }
+        });
         // delegated click handling for buttons in cards
         results.addEventListener('click', (ev) => {
           const view = ev.target.closest('.view-btn');
@@ -1089,59 +1169,89 @@
 
       /* ---------- search + filters ---------- */
       function applySearch() {
-        const q = document.getElementById('searchBox')?.value?.trim().toLowerCase() || '';
-        const loc = document.getElementById('filter-location')?.value || '';
-        const start = document.getElementById('filter-start-date')?.value || '';
-        const end = document.getElementById('filter-end-date')?.value || '';
-        const status = document.getElementById('filter-status')?.value || '';
-        const sensitivity = document.getElementById('filter-sensitivity')?.value || '';
+      const rawQuery = document.getElementById('searchBox')?.value?.trim() || '';
+      const loc = document.getElementById('filter-location')?.value || '';
+      const start = document.getElementById('filter-start-date')?.value || '';
+      const end = document.getElementById('filter-end-date')?.value || '';
+      const status = document.getElementById('filter-status')?.value || '';
+      const sensitivity = document.getElementById('filter-sensitivity')?.value || '';
+      const department = document.getElementById('filter-department')?.value || '';
+      let regex = null;
 
-        document.querySelectorAll('.results .result').forEach(r => {
-          const id = r.getAttribute('data-id');
-          const db = loadDb();
-          const entry = db.docs && db.docs[id];
-          if (!entry) { r.style.display = 'none'; return; }
+      if (rawQuery) {
+        try {
+          regex = new RegExp(rawQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "i");        } catch (e) {
+          console.warn("Invalid regex:", rawQuery);
+        }
+      }
 
-          let visible = true;
-          // query text matches title/department/filename
-          if (q) {
-            const txt = (entry.title + ' ' + entry.department + ' ' + (entry.filename||'')).toLowerCase();
-            if (!txt.includes(q)) visible = false;
+      document.querySelectorAll('.results .result').forEach(r => {
+        const id = r.getAttribute('data-id');
+        const db = loadDb();
+        const entry = db.docs && db.docs[id];
+
+        if (!entry) {
+          r.style.display = 'none';
+          return;
+        }
+
+        let visible = true;
+
+        /* ---------- REGEX filename search ---------- */
+        if (regex) {
+          const filename = entry.filename || '';
+          if (!regex.test(filename)) visible = false;
+        }
+
+        /* ---------- location filter ---------- */
+        if (visible && loc) {
+          if ((entry.source || '').toLowerCase() !== loc.toLowerCase()) {
+            visible = false;
           }
-          // location filter
-          if (visible && loc) {
-            if ((entry.source || '').toLowerCase() !== loc.toLowerCase()) visible = false;
+        }
+
+        /* ---------- status filter ---------- */
+        if (visible && status) {
+          if ((entry.status || '').toLowerCase() !== status.toLowerCase()) {
+            visible = false;
           }
-          // status filter
-          if (visible && status) {
-            if ((entry.status || '').toLowerCase() !== status.toLowerCase()) visible = false;
+        }
+
+        /* ---------- sensitivity filter ---------- */
+        if (visible && sensitivity) {
+          if ((entry.sensitivity || '').toLowerCase() !== sensitivity.toLowerCase()) {
+            visible = false;
           }
-          // sensitivity filter
-          if (visible && sensitivity) {
-            if ((entry.sensitivity || '').toLowerCase() !== sensitivity.toLowerCase()) visible = false;
-          }
-          // date range filtering (entry.dateRange {start,end} are yyyy-mm-dd or null)
-          if (visible && (start || end)) {
-            const es = entry.dateRange?.start || null;
-            const ee = entry.dateRange?.end || null;
-            // if entry has no dates, exclude when a filter range is provided
-            if (!es && !ee) visible = false;
-            else {
-              if (start && es && es < start) visible = false;
-              if (end && ee && ee > end) visible = false;
+        }
+          /* ---------- department filter ---------- */
+          if (visible && department) {
+            if ((entry.department || '') !== department) {
+              visible = false;
             }
           }
+        /* ---------- date filter ---------- */
+        if (visible && (start || end)) {
+          const es = entry.dateRange?.start || null;
+          const ee = entry.dateRange?.end || null;
 
-          r.style.display = visible ? '' : 'none';
-        });
-      }
+          if (!es && !ee) visible = false;
+          else {
+            if (start && es && es < start) visible = false;
+            if (end && ee && ee > end) visible = false;
+          }
+        }
+
+        r.style.display = visible ? '' : 'none';
+      });
+    }
 
       /* ---------- main init flow ---------- */
       async function init(forceRefresh = false) {
         const resultsEl = document.querySelector('.results');
         if (!resultsEl) return console.warn('No .results element found in DOM');
         resultsEl.innerHTML = '<div style="text-align:center;color:var(--muted)">Discovering documents…</div>';
-
+        
+        populateDepartmentFilter();
         const db = loadDb();
         db.docs = db.docs || {};
 
@@ -1167,14 +1277,10 @@
 
         // pick 10 random entries
         const currentDb = loadDb();
+        // render ALL documents instead of 10 random
         const docsArr = Object.values(currentDb.docs || {});
-        // shuffle
-        for (let i = docsArr.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [docsArr[i], docsArr[j]] = [docsArr[j], docsArr[i]];
-        }
-        const chosen = docsArr.slice(0, Math.min(10, docsArr.length));
-        resultsEl.innerHTML = chosen.map(cardHtml).join('');
+
+        resultsEl.innerHTML = docsArr.map(cardHtml).join('');
         attachHandlers();
         // refresh UI states from DB (votes, pills)
         chosen.forEach(d => refreshCardUI(d.id));
