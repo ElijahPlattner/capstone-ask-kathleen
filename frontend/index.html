@@ -470,6 +470,11 @@
               <section class="results" aria-label="Search results">
                 <!-- JS injects cards here -->
               </section>
+              <div class="pagination" style="margin-top:18px; display:flex; justify-content:center; gap:8px;">
+                <button class="btn" id="prevPage">Previous</button>
+                <span id="pageInfo" style="display:flex; align-items:center; font-weight:600;"></span>
+                <button class="btn" id="nextPage">Next</button>
+              </div>
             </section>
           </div>
         </main>
@@ -577,6 +582,10 @@
       /* ---------- CONFIG ---------- */
       const DB_KEY = 'ask_kathleen_db_v1';
       const SOURCES = ['Sharepoint','Teams','Confluence'];
+
+      let CURRENT_PAGE = 1;
+      const PAGE_SIZE = 10;
+      let FILTERED_DOCS = [];
 
       /* Full file list (keep precise filenames) */
       const ALL_FILES = [
@@ -745,6 +754,28 @@
       function loadDb() {
         try { const raw = localStorage.getItem(DB_KEY); return raw ? JSON.parse(raw) : { docs: {} }; }
         catch (e) { console.error('loadDb error', e); return { docs: {} }; }
+      }
+
+      function renderPage() {
+        const resultsEl = document.querySelector('.results');
+        if (!resultsEl) return;
+
+        const start = (CURRENT_PAGE - 1) * PAGE_SIZE;
+        const end = start + PAGE_SIZE;
+
+        const pageDocs = FILTERED_DOCS.slice(start, end);
+
+        resultsEl.innerHTML = pageDocs.map(cardHtml).join('');
+
+        pageDocs.forEach(d => refreshCardUI(d.id));
+
+        const totalPages = Math.ceil(FILTERED_DOCS.length / PAGE_SIZE);
+
+        document.getElementById('pageInfo').textContent =
+          `Page ${CURRENT_PAGE} of ${totalPages || 1}`;
+
+        document.getElementById('prevPage').disabled = CURRENT_PAGE <= 1;
+        document.getElementById('nextPage').disabled = CURRENT_PAGE >= totalPages;
       }
       function populateDepartmentFilter() {
         const db = loadDb();
@@ -957,6 +988,21 @@
       /* ---------- UI handlers (delegated) ---------- */
       function attachHandlers() {
         const results = document.querySelector('.results');
+
+        document.getElementById('prevPage')?.addEventListener('click', () => {
+        if (CURRENT_PAGE > 1) {
+          CURRENT_PAGE--;
+          renderPage();
+        }
+      });
+
+      document.getElementById('nextPage')?.addEventListener('click', () => {
+        const totalPages = Math.ceil(FILTERED_DOCS.length / PAGE_SIZE);
+        if (CURRENT_PAGE < totalPages) {
+          CURRENT_PAGE++;
+          renderPage();
+        }
+      });
         document.querySelectorAll('.quick-btn').forEach(btn => {
           btn.addEventListener('click', () => {
             const query = btn.dataset.query || btn.textContent.trim();
@@ -1168,87 +1214,48 @@
 
       /* ---------- search + filters ---------- */
       function applySearch() {
-      const rawQuery = document.getElementById('searchBox')?.value?.trim() || '';
-      const loc = document.getElementById('filter-location')?.value || '';
-      const start = document.getElementById('filter-start-date')?.value || '';
-      const end = document.getElementById('filter-end-date')?.value || '';
-      const status = document.getElementById('filter-status')?.value || '';
-      const sensitivity = document.getElementById('filter-sensitivity')?.value || '';
-      const department = document.getElementById('filter-department')?.value || '';
-      let regex = null;
+        const rawQuery = document.getElementById('searchBox')?.value?.trim() || '';
+        const department = document.getElementById('filter-department')?.value || '';
+        const loc = document.getElementById('filter-location')?.value || '';
+        const status = document.getElementById('filter-status')?.value || '';
+        const sensitivity = document.getElementById('filter-sensitivity')?.value || '';
 
-      if (rawQuery) {
-        try {
-          regex = new RegExp(rawQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "i");        } catch (e) {
-          console.warn("Invalid regex:", rawQuery);
+        let regex = null;
+
+        if (rawQuery) {
+          try {
+            regex = new RegExp(rawQuery, "i");
+          } catch (e) {}
         }
-      }
 
-      document.querySelectorAll('.results .result').forEach(r => {
-        const id = r.getAttribute('data-id');
         const db = loadDb();
-        const entry = db.docs && db.docs[id];
 
-        if (!entry) {
-          r.style.display = 'none';
-          return;
-        }
+        FILTERED_DOCS = Object.values(db.docs || {}).filter(entry => {
 
-        let visible = true;
+          if (regex && !regex.test(entry.filename)) return false;
 
-        /* ---------- REGEX filename search ---------- */
-        if (regex) {
-          const filename = entry.filename || '';
-          if (!regex.test(filename)) visible = false;
-        }
+          if (department && entry.department !== department) return false;
 
-        /* ---------- location filter ---------- */
-        if (visible && loc) {
-          if ((entry.source || '').toLowerCase() !== loc.toLowerCase()) {
-            visible = false;
-          }
-        }
+          if (loc && entry.source !== loc) return false;
 
-        /* ---------- status filter ---------- */
-        if (visible && status) {
-          if ((entry.status || '').toLowerCase() !== status.toLowerCase()) {
-            visible = false;
-          }
-        }
+          if (status && entry.status !== status) return false;
 
-        /* ---------- sensitivity filter ---------- */
-        if (visible && sensitivity) {
-          if ((entry.sensitivity || '').toLowerCase() !== sensitivity.toLowerCase()) {
-            visible = false;
-          }
-        }
-          /* ---------- department filter ---------- */
-          if (visible && department) {
-            if ((entry.department || '') !== department) {
-              visible = false;
-            }
-          }
-        /* ---------- date filter ---------- */
-        if (visible && (start || end)) {
-          const es = entry.dateRange?.start || null;
-          const ee = entry.dateRange?.end || null;
+          if (sensitivity && entry.sensitivity !== sensitivity) return false;
 
-          if (!es && !ee) visible = false;
-          else {
-            if (start && es && es < start) visible = false;
-            if (end && ee && ee > end) visible = false;
-          }
-        }
+          return true;
+        });
 
-        r.style.display = visible ? '' : 'none';
-      });
-    }
+        CURRENT_PAGE = 1;
+
+        renderPage();
+      }
 
       /* ---------- main init flow ---------- */
       async function init(forceRefresh = false) {
         const resultsEl = document.querySelector('.results');
         if (!resultsEl) return console.warn('No .results element found in DOM');
         resultsEl.innerHTML = '<div style="text-align:center;color:var(--muted)">Discovering documents…</div>';
+        
         
         populateDepartmentFilter();
         const db = loadDb();
@@ -1276,10 +1283,9 @@
 
         // pick 10 random entries
         const currentDb = loadDb();
-        // render ALL documents instead of 10 random
-        const docsArr = Object.values(currentDb.docs || {});
+        FILTERED_DOCS = Object.values(currentDb.docs || {});
 
-        resultsEl.innerHTML = docsArr.map(cardHtml).join('');
+        renderPage();
         attachHandlers();
         // refresh UI states from DB (votes, pills)
         chosen.forEach(d => refreshCardUI(d.id));
