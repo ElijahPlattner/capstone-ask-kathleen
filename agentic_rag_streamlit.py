@@ -27,12 +27,7 @@ load_dotenv()
 # initiating supabase
 supabase_url = os.environ.get("SUPABASE_URL")
 supabase_key = os.environ.get("SUPABASE_SERVICE_KEY")
-from httpx import Client as HttpxClient
-from supabase.lib.client_options import SyncClientOptions
-options = SyncClientOptions()
-options.httpx_client = HttpxClient(verify=False)
-
-supabase: Client = create_client(supabase_url, supabase_key, options)
+supabase: Client = create_client(supabase_url, supabase_key)
 
 # initiating embeddings model
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
