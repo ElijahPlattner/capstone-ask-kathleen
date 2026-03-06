@@ -11,11 +11,11 @@ venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 
 ## Commands to install Ollama: 
-ollama pull llama3.1:latest
+ollama pull llama3.1:latest  
 ollama pull nomic-embed-text
 
 ## Fix certificate issue:
-pip install python-certifi-win32
+pip install python-certifi-win32  
 pip install --upgrade certifi requests urllib3
 
 ## setup your .env file so app works with your local Ollama install 
