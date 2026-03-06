@@ -203,6 +203,53 @@
         border-radius: 18px;
       }
       .actions .btn.primary{padding: 10px 20px}
+      .filters-menu{
+        position:relative;
+      }
+      .filters-menu summary{
+        list-style:none;
+      }
+      .filters-menu summary::-webkit-details-marker{
+        display:none;
+      }
+      .filters-panel{
+        position:absolute;
+        top: calc(100% + 10px);
+        right:0;
+        width: min(92vw, 380px);
+        background:#fff;
+        border:1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        padding:14px;
+        z-index:20;
+        text-align:left;
+      }
+      .filter-field{
+        display:flex;
+        flex-direction:column;
+        gap:6px;
+        margin-bottom:10px;
+      }
+      .filter-field label{
+        font-size:12px;
+        font-weight:650;
+        color:#334155;
+      }
+      .filter-field input,
+      .filter-field select{
+        height:40px;
+        border-radius:12px;
+        border:1px solid var(--border);
+        padding:0 10px;
+        background:#fff;
+        color:var(--text);
+      }
+      .filter-range{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+      }
 
       .searching{
         text-align:center;
@@ -358,25 +405,60 @@
               </div>
 
               <button class="btn primary" type="button">
-                Search Now
                 <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path d="M9 18l6-6-6-6"></path>
                 </svg>
               </button>
 
-              <button class="btn" type="button">
-                <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="color: var(--brand);">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <path d="M7 10l5-5 5 5"></path>
-                  <path d="M12 5v14"></path>
-                </svg>
-                Upload documents
-              </button>
-            </div>
+              <details class="filters-menu">
+                <summary class="btn">Advanced filters</summary>
+                <div class="filters-panel">
+                  <div class="filter-field">
+                    <label for="filter-location">Location</label>
+                    <input id="filter-location" type="text" placeholder="e.g., New York" />
+                  </div>
 
-            <div class="actions">
-              <button class="btn primary" type="button">Search knowledge</button>
-              <button class="btn" type="button">Advanced filters</button>
+                  <div class="filter-range">
+                    <div class="filter-field">
+                      <label for="filter-start-date">Start date</label>
+                      <input id="filter-start-date" type="date" />
+                    </div>
+                    <div class="filter-field">
+                      <label for="filter-end-date">End date</label>
+                      <input id="filter-end-date" type="date" />
+                    </div>
+                  </div>
+
+                  <div class="filter-field">
+                    <label for="filter-type">Type</label>
+                    <select id="filter-type">
+                      <option value="">Any type</option>
+                      <option value="case-study">Case study</option>
+                      <option value="playbook">Playbook</option>
+                      <option value="summary">Summary</option>
+                    </select>
+                  </div>
+
+                  <div class="filter-field">
+                    <label for="filter-status">Status</label>
+                    <select id="filter-status">
+                      <option value="">Any status</option>
+                      <option value="approved">Approved</option>
+                      <option value="needs-review">Needs review</option>
+                    </select>
+                  </div>
+
+                  <div class="filter-field" style="margin-bottom:0;">
+                    <label for="filter-sensitivity">Sensitivity</label>
+                    <select id="filter-sensitivity">
+                      <option value="">Any sensitivity</option>
+                      <option value="internal">Internal</option>
+                      <option value="external">External</option>
+                      <option value="external-limited">External limited</option>
+                    </select>
+                  </div>
+                </div>
+              </details>
             </div>
 
             <div class="searching">
@@ -388,133 +470,144 @@
             </div>
           </div>
 
-          <section class="results" aria-label="Search results">
-            <article class="result">
-              <h3>
-                CRM Migration Playbook <span class="dim">–</span> Retail Client
-                <span class="dim">(Case Study Summary)</span>
-              </h3>
-
-              <div class="meta">
-                <span><strong>SharePoint</strong> <span class="dot">·</span> Last validated: Oct 2025</span>
-                <span class="dot">·</span>
-                <span>Status:</span>
-                <span class="pill green"><span class="dot"></span> Approved</span>
-              </div>
-
-              <div class="result-footer">
-                <div class="footer-left">
-                  <button class="btn" type="button">
-                    <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                      <path d="M9 18l6-6-6-6"></path>
-                    </svg>
-                    View document
-                  </button>
-                  <button class="btn" type="button">Expand summary</button>
-                </div>
-
-                <div class="vote">
-                  <button class="counter counter--up vote-btn" type="button" data-delta="1" aria-pressed="false">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                      <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11a2 2 0 0 0 2-2l1-7a2 2 0 0 0-2-2h-5z"></path>
-                    </svg>
-                    <span class="vote-count">21</span>
-                  </button>
-                  <button class="counter counter--down vote-btn" type="button" data-delta="-1" aria-pressed="false">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                      <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H6a2 2 0 0 0-2 2l-1 7a2 2 0 0 0 2 2h5z"></path>
-                    </svg>
-                    <span class="vote-count">2</span>
-                  </button>
-                </div>
-              </div>
-            </article>
-
-            <article class="result">
-              <h3>
-                Resource Expansion Initiative <span class="dim">–</span> Tech Client
-                <span class="dim">(Case Study Summary)</span>
-              </h3>
-
-              <div class="meta">
-                <span><strong>Internal Repos</strong> <span class="dot">·</span> Last validated: Jan 2023</span>
-                <span class="dot">·</span>
-                <span>Status:</span>
-                <span class="pill amber"><span class="dot"></span> Needs review</span>
-              </div>
-
-              <div class="result-footer">
-                <div class="footer-left">
-                  <button class="btn" type="button">
-                    <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                      <path d="M9 18l6-6-6-6"></path>
-                    </svg>
-                    View document
-                  </button>
-                  <button class="btn" type="button">Expand summary</button>
-                </div>
-
-                <div class="vote">
-                  <button class="counter counter--up vote-btn" type="button" data-delta="1" aria-pressed="false">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                      <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11a2 2 0 0 0 2-2l1-7a2 2 0 0 0-2-2h-5z"></path>
-                    </svg>
-                    <span class="vote-count">8</span>
-                  </button>
-                  <button class="counter counter--down vote-btn" type="button" data-delta="-1" aria-pressed="false">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                      <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H6a2 2 0 0 0-2 2l-1 7a2 2 0 0 0 2 2h5z"></path>
-                    </svg>
-                    <span class="vote-count">1</span>
-                  </button>
-                </div>
-              </div>
-            </article>
-            </section>
+          <section class="results" aria-label="Search results"></section>
           </div>
         </main>
       </div>
     </div>
     <script>
+      const dummyResults = [
+        {
+          title: "CRM Migration Playbook",
+          client: "Retail Client",
+          summaryLabel: "(Case Study Summary)",
+          source: "SharePoint",
+          lastValidated: "Oct 2025",
+          status: "approved",
+          upVotes: 21,
+          downVotes: 2
+        },
+        {
+          title: "Resource Expansion Initiative",
+          client: "Tech Client",
+          summaryLabel: "(Case Study Summary)",
+          source: "Internal Repos",
+          lastValidated: "Jan 2023",
+          status: "needs review",
+          upVotes: 8,
+          downVotes: 1
+        },
+        {
+          title: "Knowledge Base Search Rollout",
+          client: "Healthcare Client",
+          summaryLabel: "(Implementation Notes)",
+          source: "Confluence",
+          lastValidated: "Nov 2024",
+          status: "approved",
+          upVotes: 14,
+          downVotes: 3
+        }
+      ];
+
+      function buildResultCard(item) {
+        const statusClass = item.status === "approved" ? "green" : "amber";
+        const statusLabel = item.status === "approved" ? "Approved" : "Needs review";
+
+        return `
+          <article class="result">
+            <h3>
+              ${item.title} <span class="dim">-</span> ${item.client}
+              <span class="dim">${item.summaryLabel}</span>
+            </h3>
+
+            <div class="meta">
+              <span><strong>${item.source}</strong> <span class="dot">&middot;</span> Last validated: ${item.lastValidated}</span>
+              <span class="dot">&middot;</span>
+              <span>Status:</span>
+              <span class="pill ${statusClass}"><span class="dot"></span> ${statusLabel}</span>
+            </div>
+
+            <div class="result-footer">
+              <div class="footer-left">
+                <button class="btn" type="button">
+                  <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M9 18l6-6-6-6"></path>
+                  </svg>
+                  View document
+                </button>
+                <button class="btn" type="button">Expand summary</button>
+              </div>
+
+              <div class="vote">
+                <button class="counter counter--up vote-btn" type="button" data-delta="1" aria-pressed="false">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11a2 2 0 0 0 2-2l1-7a2 2 0 0 0-2-2h-5z"></path>
+                  </svg>
+                  <span class="vote-count">${item.upVotes}</span>
+                </button>
+                <button class="counter counter--down vote-btn" type="button" data-delta="-1" aria-pressed="false">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H6a2 2 0 0 0-2 2l-1 7a2 2 0 0 0 2 2h5z"></path>
+                  </svg>
+                  <span class="vote-count">${item.downVotes}</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }
+
+      function renderResults(items) {
+        const resultsEl = document.querySelector(".results");
+        if (!resultsEl) return;
+        resultsEl.innerHTML = items.map(buildResultCard).join("");
+      }
+
       function updateCount(button, delta) {
         const countEl = button.querySelector(".vote-count");
         const current = Number(countEl?.textContent || "0");
         if (countEl) countEl.textContent = String(current + delta);
       }
 
-      document.querySelectorAll(".vote").forEach((group) => {
-        const upBtn = group.querySelector(".counter--up");
-        const downBtn = group.querySelector(".counter--down");
-        if (!upBtn || !downBtn) return;
+      function bindVoteButtons() {
+        document.querySelectorAll(".vote").forEach((group) => {
+          const upBtn = group.querySelector(".counter--up");
+          const downBtn = group.querySelector(".counter--down");
+          if (!upBtn || !downBtn) return;
 
-        upBtn.addEventListener("click", () => {
-          if (upBtn.classList.contains("is-active")) return;
+          upBtn.addEventListener("click", () => {
+            if (upBtn.classList.contains("is-active")) return;
 
-          if (downBtn.classList.contains("is-active")) {
-            updateCount(downBtn, -1);
-            downBtn.classList.remove("is-active");
-            downBtn.setAttribute("aria-pressed", "false");
-          }
+            if (downBtn.classList.contains("is-active")) {
+              updateCount(downBtn, -1);
+              downBtn.classList.remove("is-active");
+              downBtn.setAttribute("aria-pressed", "false");
+            }
 
-          updateCount(upBtn, 1);
-          upBtn.classList.add("is-active");
-          upBtn.setAttribute("aria-pressed", "true");
+            updateCount(upBtn, 1);
+            upBtn.classList.add("is-active");
+            upBtn.setAttribute("aria-pressed", "true");
+          });
+
+          downBtn.addEventListener("click", () => {
+            if (downBtn.classList.contains("is-active")) return;
+
+            if (upBtn.classList.contains("is-active")) {
+              updateCount(upBtn, -1);
+              upBtn.classList.remove("is-active");
+              upBtn.setAttribute("aria-pressed", "false");
+            }
+
+            updateCount(downBtn, 1);
+            downBtn.classList.add("is-active");
+            downBtn.setAttribute("aria-pressed", "true");
+          });
         });
+      }
 
-        downBtn.addEventListener("click", () => {
-          if (downBtn.classList.contains("is-active")) return;
-
-          if (upBtn.classList.contains("is-active")) {
-            updateCount(upBtn, -1);
-            upBtn.classList.remove("is-active");
-            upBtn.setAttribute("aria-pressed", "false");
-          }
-
-          updateCount(downBtn, 1);
-          downBtn.classList.add("is-active");
-          downBtn.setAttribute("aria-pressed", "true");
-        });
-      });
+      renderResults(dummyResults);
+      bindVoteButtons();
     </script>
   </body>
 </html>
+
