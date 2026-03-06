@@ -38,7 +38,7 @@ pip install (figure this one out)
 - Create a free account on Supabase: https://supabase.com/
 - Dowload Ollama 
 ```
-ollama pull llama3.1:8b
+ollama pull qwen3-vl:4b
 ```
 
 <h3>6. Execute SQL queries in Supabase</h3>
@@ -55,12 +55,12 @@ create table
     id uuid primary key,
     content text, -- corresponds to Document.pageContent
     metadata jsonb, -- corresponds to Document.metadata
-    embedding vector (768) -- 1536 works for OpenAI embeddings, change if needed
+    embedding vector (1536) -- 1536 works for OpenAI embeddings, change if needed
   );
 
 -- Create a function to search for documents
 create function match_documents (
-  query_embedding vector (768),
+  query_embedding vector (1536),
   filter jsonb default '{}'
 ) returns table (
   id uuid,
@@ -97,7 +97,7 @@ $$;
 ```
 python ingest_in_db.py
 python agentic_rag.py
-streamlit run agentic_rag_streamlit.py
+python app_flask.py
 ```
 
 <h2>Sources</h2>

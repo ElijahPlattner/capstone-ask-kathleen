@@ -5,371 +5,366 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ask Kathleen</title>
     <style>
-      :root{
-        --bg:#f6f6f8;
-        --card:#ffffff;
-        --text:#0f172a;
-        --muted:#64748b;
-        --border:rgba(15,23,42,.12);
-        --shadow: 0 10px 30px rgba(2,6,23,.08);
-        --shadow-sm: 0 6px 18px rgba(2,6,23,.06);
-        --brand:#d93a2f;
-        --radius-xl: 24px;
-        --radius-lg: 18px;
-        --radius-md: 14px;
+      :root {
+        --bg: #f6f6f8;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #64748b;
+        --border: rgba(15, 23, 42, 0.12);
+        --shadow-sm: 0 6px 18px rgba(2, 6, 23, 0.06);
+        --brand: #d93a2f;
       }
 
-      *{box-sizing:border-box}
-      body{
-        margin:0;
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-        color:var(--text);
-        background:var(--bg);
+      * {
+        box-sizing: border-box;
       }
-      a{color:inherit; text-decoration:none}
-      button,input{font:inherit}
 
-      .app-shell{
-        min-height:100vh;
-        display:flex;
-        align-items:stretch;
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        color: var(--text);
+        background: var(--bg);
       }
-      .left-sidebar{
-        width:220px;
-        flex:0 0 220px;
-        color:#fff;
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .app-shell {
+        min-height: 100vh;
+        display: flex;
+        align-items: stretch;
+      }
+
+      .left-sidebar {
+        width: 220px;
+        flex: 0 0 220px;
+        color: #fff;
         background: linear-gradient(180deg, #4a38a6 0%, #2a136b 100%);
         padding: 24px 16px;
       }
-      .left-sidebar h2{
-        margin:0 0 26px;
-        font-size:40px;
-        letter-spacing:-0.02em;
+
+      .side-label {
+        margin: 0 0 10px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.9;
       }
-      .side-label{
-        margin:0 0 10px;
-        font-size:12px;
-        font-weight:700;
-        letter-spacing:.08em;
-        text-transform:uppercase;
-        opacity:.9;
-      }
-      .side-copy{
-        margin:0;
-        font-size:34px;
-        line-height:1.2;
-        opacity:.92;
-      }
-      .side-list{
-        list-style:none;
-        margin:0;
-        padding:0;
-      }
-      .side-list li{
-        margin: 0 0 8px;
-        font-size:31px;
-        line-height:1.32;
-      }
-      .side-block{
-        margin: 0 0 28px;
-      }
-      .quick-search{
+
+      .quick-search {
         margin-top: 30px;
         padding-top: 24px;
-        border-top: 1px solid rgba(255,255,255,.2);
-      }
-      .quick-btn{
-        width:100%;
-        border:1px solid rgba(255,255,255,.22);
-        background: rgba(255,255,255,.08);
-        color:#fff;
-        border-radius:8px;
-        padding:10px 12px;
-        margin-bottom:10px;
-        text-align:left;
-        cursor:pointer;
-      }
-      .quick-btn:hover{background:rgba(255,255,255,.15)}
-      .content-shell{
-        flex:1;
-        min-width:0;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
       }
 
-      .container{
+      .quick-btn {
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .quick-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .content-shell {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .container {
         max-width: 1060px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 36px 20px 64px;
       }
 
-      /* Main card */
-      main{padding: 36px 0 64px}
-      .hero-card{
+      .hero-card {
         background: var(--card);
-        border: 1px solid rgba(2,6,23,.06);
+        border: 1px solid rgba(2, 6, 23, 0.06);
         border-radius: 28px;
         box-shadow: var(--shadow-sm);
         padding: 44px 26px;
       }
-      .hero{
-        text-align:center;
+
+      .hero {
+        text-align: center;
       }
-      .hero h1{
-        margin:0;
+
+      .hero h1 {
+        margin: 0;
         font-size: clamp(34px, 4.2vw, 52px);
         letter-spacing: -0.03em;
         font-weight: 650;
       }
-      .hero .ask{color:var(--brand)}
-      .hero p{
+
+      .hero .ask {
+        color: var(--brand);
+      }
+
+      .hero p {
         margin: 10px 0 0;
         color: var(--muted);
         font-size: 15px;
       }
 
-      /* Search row */
-      .search-wrap{
+      .search-wrap {
         max-width: 780px;
         margin: 28px auto 0;
       }
-      .search-row{
-        display:flex;
-        gap:10px;
-        align-items:center;
+
+      .search-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
         flex-wrap: wrap;
       }
-      .search-input{
+
+      .search-input {
         flex: 1 1 360px;
-        position:relative;
+        position: relative;
       }
-      .search-input input{
-        width:100%;
-        height:48px;
+
+      .search-input input {
+        width: 100%;
+        height: 48px;
         border-radius: 18px;
         border: 1px solid var(--border);
         padding: 0 14px 0 44px;
-        outline:none;
-        background:#fff;
+        outline: none;
+        background: #fff;
         box-shadow: var(--shadow-sm);
         font-size: 15px;
       }
-      .search-input input:focus{
-        border-color: rgba(15,23,42,.22);
-        box-shadow: 0 0 0 4px rgba(15,23,42,.05), var(--shadow-sm);
+
+      .search-input input:focus {
+        border-color: rgba(15, 23, 42, 0.22);
+        box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.05), var(--shadow-sm);
       }
-      .icon{
-        position:absolute;
+
+      .icon {
+        position: absolute;
         left: 14px;
         top: 50%;
         transform: translateY(-50%);
-        width:18px;height:18px;
-        opacity:.55;
+        width: 18px;
+        height: 18px;
+        opacity: 0.55;
       }
-      .btn{
-        height:48px;
+
+      .btn {
+        height: 48px;
         border-radius: 18px;
         border: 1px solid var(--border);
-        background:#fff;
+        background: #fff;
         padding: 0 14px;
         font-weight: 600;
         font-size: 14px;
-        display:inline-flex;
-        align-items:center;
-        gap:10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
         box-shadow: var(--shadow-sm);
-        cursor:pointer;
-      }
-      .btn:hover{background:#f8fafc}
-      .btn.primary{
-        background: var(--brand);
-        color:#fff;
-        border-color: rgba(0,0,0,0);
-      }
-      .btn.primary:hover{filter: brightness(.97)}
-      .btn .mini{
-        width:16px; height:16px;
+        cursor: pointer;
       }
 
-      /* Secondary actions */
-      .actions{
-        display:flex;
-        justify-content:center;
-        gap:12px;
+      .btn:hover {
+        background: #f8fafc;
+      }
+
+      .btn.primary {
+        background: var(--brand);
+        color: #fff;
+        border-color: transparent;
+      }
+
+      .btn .mini {
+        width: 16px;
+        height: 16px;
+      }
+
+      .actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
         margin-top: 14px;
         flex-wrap: wrap;
       }
-      .actions .btn{
-        height:auto;
+
+      .actions .btn {
+        height: auto;
         padding: 10px 18px;
-        border-radius: 18px;
-      }
-      .actions .btn.primary{padding: 10px 20px}
-      .filters-menu{
-        position:relative;
-      }
-      .filters-menu summary{
-        list-style:none;
-      }
-      .filters-menu summary::-webkit-details-marker{
-        display:none;
-      }
-      .filters-panel{
-        position:absolute;
-        top: calc(100% + 10px);
-        right:0;
-        width: min(92vw, 380px);
-        background:#fff;
-        border:1px solid var(--border);
-        border-radius: 18px;
-        box-shadow: var(--shadow);
-        padding:14px;
-        z-index:20;
-        text-align:left;
-      }
-      .filter-field{
-        display:flex;
-        flex-direction:column;
-        gap:6px;
-        margin-bottom:10px;
-      }
-      .filter-field label{
-        font-size:12px;
-        font-weight:650;
-        color:#334155;
-      }
-      .filter-field input,
-      .filter-field select{
-        height:40px;
-        border-radius:12px;
-        border:1px solid var(--border);
-        padding:0 10px;
-        background:#fff;
-        color:var(--text);
-      }
-      .filter-range{
-        display:grid;
-        grid-template-columns:1fr 1fr;
-        gap:10px;
       }
 
-      .searching{
-        text-align:center;
+      .searching {
+        text-align: center;
         margin-top: 12px;
         color: var(--muted);
         font-size: 12px;
       }
-      .dot{opacity:.35; padding: 0 6px}
 
-      /* Results */
-      .results{
+      .results {
         max-width: 780px;
         margin: 28px auto 0;
-        display:flex;
-        flex-direction:column;
-        gap:14px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
       }
-      .result{
-        background:#fff;
+
+      .empty-state {
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+        padding-top: 12px;
+      }
+
+      .result {
+        background: #fff;
         border: 1px solid var(--border);
         border-radius: 20px;
         box-shadow: var(--shadow-sm);
         padding: 18px;
       }
-      .result h3{
-        margin:0;
+
+      .result h3 {
+        margin: 0;
         font-size: 18px;
         letter-spacing: -0.015em;
       }
-      .result h3 .dim{color:var(--muted); font-weight: 550}
-      .meta{
+
+      .meta {
         margin-top: 8px;
-        display:flex;
-        flex-wrap:wrap;
-        gap:10px;
-        align-items:center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
         color: var(--muted);
         font-size: 12px;
       }
-      .meta strong{color:#475569}
-      .pill{
-        display:inline-flex;
-        align-items:center;
-        gap:8px;
+
+      .meta strong {
+        color: #475569;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         padding: 6px 10px;
         border-radius: 999px;
-        border: 1px solid rgba(2,6,23,.08);
-        background:#fff;
+        border: 1px solid rgba(2, 6, 23, 0.08);
+        background: #fff;
         font-weight: 650;
       }
-      .pill .dot{
-        width:7px;height:7px;border-radius:999px;
-        background:#22c55e;
-        opacity:1;
-        padding:0;
+
+      .pill .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        opacity: 1;
       }
-      .pill.green{
-        background: rgba(16,185,129,.10);
-        border-color: rgba(16,185,129,.22);
+
+      .pill.green {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.22);
         color: #047857;
       }
-      .pill.green .dot{background:#10b981}
-      .pill.amber{
-        background: rgba(245,158,11,.12);
-        border-color: rgba(245,158,11,.22);
-        color:#b45309;
-      }
-      .pill.amber .dot{background:#f59e0b}
 
-      .result-footer{
+      .pill.green .dot {
+        background: #10b981;
+      }
+
+      .pill.amber {
+        background: rgba(245, 158, 11, 0.12);
+        border-color: rgba(245, 158, 11, 0.22);
+        color: #b45309;
+      }
+
+      .pill.amber .dot {
+        background: #f59e0b;
+      }
+
+      .result-footer {
         margin-top: 14px;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        gap:12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
         flex-wrap: wrap;
       }
-      .footer-left{display:flex; gap:10px; flex-wrap:wrap}
-      .vote{
-        display:flex;
-        gap:10px;
+
+      .footer-left {
+        flex: 1;
+        min-width: 240px;
       }
-      .counter{
-        display:inline-flex;
-        align-items:center;
-        gap:8px;
+
+      .footer-left pre {
+        margin: 0;
+        font: inherit;
+        white-space: pre-wrap;
+      }
+
+      .vote {
+        display: flex;
+        gap: 10px;
+      }
+
+      .counter {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         padding: 9px 12px;
         border-radius: 14px;
         border: 1px solid var(--border);
-        background:#fff;
+        background: #fff;
         box-shadow: var(--shadow-sm);
-        color:#334155;
+        color: #334155;
         font-size: 14px;
         font-weight: 650;
-        cursor:pointer;
-      }
-      .counter svg{width:16px;height:16px; opacity:.9}
-      .counter.counter--up.is-active{
-        background: rgba(16,185,129,.12);
-        border-color: rgba(16,185,129,.4);
-        color:#047857;
-      }
-      .counter.counter--down.is-active{
-        background: rgba(239,68,68,.12);
-        border-color: rgba(239,68,68,.38);
-        color:#b91c1c;
+        cursor: pointer;
       }
 
-      /* Responsive */
-      @media (max-width: 720px){
-        .app-shell{display:block}
-        .left-sidebar{width:100%; padding: 22px 18px}
-        .left-sidebar h2{font-size:34px}
-        .side-copy{font-size:26px}
-        .side-list li{font-size:24px}
-        .hero-card{padding: 34px 18px}
+      .counter svg {
+        width: 16px;
+        height: 16px;
+        opacity: 0.9;
+      }
+
+      .counter.counter--up.is-active {
+        background: rgba(16, 185, 129, 0.12);
+        border-color: rgba(16, 185, 129, 0.4);
+        color: #047857;
+      }
+
+      .counter.counter--down.is-active {
+        background: rgba(239, 68, 68, 0.12);
+        border-color: rgba(239, 68, 68, 0.38);
+        color: #b91c1c;
+      }
+
+      @media (max-width: 720px) {
+        .app-shell {
+          display: block;
+        }
+
+        .left-sidebar {
+          width: 100%;
+          padding: 22px 18px;
+        }
+
+        .hero-card {
+          padding: 34px 18px;
+        }
       }
     </style>
   </head>
-
   <body>
     <div class="app-shell">
       <aside class="left-sidebar">
@@ -383,185 +378,68 @@
       </aside>
 
       <div class="content-shell">
-        <main>
-          <div class="container">
-            <section class="hero-card">
-          <div class="hero">
-            <h1><span class="ask">Ask</span> Kathleen</h1>
-            <p>Search across project documents, summaries, and internal knowledge.</p>
-          </div>
+        <main class="container">
+          <section class="hero-card">
+            <div class="hero">
+              <h1><span class="ask">Ask</span> Kathleen</h1>
+              <p>Search across project documents, summaries, and internal knowledge.</p>
+            </div>
 
-          <div class="search-wrap">
-            <div class="search-row">
-              <div class="search-input">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <circle cx="11" cy="11" r="7"></circle>
-                  <path d="M21 21l-4.3-4.3"></path>
-                </svg>
-                <input
-                  value="What are best practices for rapid growth projects?"
-                  aria-label="Search"
-                />
-              </div>
-
-              <button class="btn primary" type="button">
-                <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <path d="M9 18l6-6-6-6"></path>
-                </svg>
-              </button>
-
-              <details class="filters-menu">
-                <summary class="btn">Advanced filters</summary>
-                <div class="filters-panel">
-                  <div class="filter-field">
-                    <label for="filter-location">Location</label>
-                    <input id="filter-location" type="text" placeholder="e.g., New York" />
-                  </div>
-
-                  <div class="filter-range">
-                    <div class="filter-field">
-                      <label for="filter-start-date">Start date</label>
-                      <input id="filter-start-date" type="date" />
-                    </div>
-                    <div class="filter-field">
-                      <label for="filter-end-date">End date</label>
-                      <input id="filter-end-date" type="date" />
-                    </div>
-                  </div>
-
-                  <div class="filter-field">
-                    <label for="filter-type">Type</label>
-                    <select id="filter-type">
-                      <option value="">Any type</option>
-                      <option value="case-study">Case study</option>
-                      <option value="playbook">Playbook</option>
-                      <option value="summary">Summary</option>
-                    </select>
-                  </div>
-
-                  <div class="filter-field">
-                    <label for="filter-status">Status</label>
-                    <select id="filter-status">
-                      <option value="">Any status</option>
-                      <option value="approved">Approved</option>
-                      <option value="needs-review">Needs review</option>
-                    </select>
-                  </div>
-
-                  <div class="filter-field" style="margin-bottom:0;">
-                    <label for="filter-sensitivity">Sensitivity</label>
-                    <select id="filter-sensitivity">
-                      <option value="">Any sensitivity</option>
-                      <option value="internal">Internal</option>
-                      <option value="external">External</option>
-                      <option value="external-limited">External limited</option>
-                    </select>
-                  </div>
+            <div class="search-wrap">
+              <div class="search-row">
+                <div class="search-input">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path d="M21 21l-4.3-4.3"></path>
+                  </svg>
+                  <input id="queryInput" value="What are best practices for rapid growth projects?" aria-label="Search" />
                 </div>
-              </details>
-            </div>
 
-            <div class="searching">
-              Searching:
-              <span>SharePoint</span><span class="dot">·</span>
-              <span>Confluence</span><span class="dot">·</span>
-              <span>Teams Files</span><span class="dot">·</span>
-              <span>Internal Repos</span>
-            </div>
-          </div>
-
-          <section class="results" aria-label="Search results"></section>
-          </div>
-        </main>
-      </div>
-    </div>
-    <script>
-      const dummyResults = [
-        {
-          title: "CRM Migration Playbook",
-          client: "Retail Client",
-          summaryLabel: "(Case Study Summary)",
-          source: "SharePoint",
-          lastValidated: "Oct 2025",
-          status: "approved",
-          upVotes: 21,
-          downVotes: 2
-        },
-        {
-          title: "Resource Expansion Initiative",
-          client: "Tech Client",
-          summaryLabel: "(Case Study Summary)",
-          source: "Internal Repos",
-          lastValidated: "Jan 2023",
-          status: "needs review",
-          upVotes: 8,
-          downVotes: 1
-        },
-        {
-          title: "Knowledge Base Search Rollout",
-          client: "Healthcare Client",
-          summaryLabel: "(Implementation Notes)",
-          source: "Confluence",
-          lastValidated: "Nov 2024",
-          status: "approved",
-          upVotes: 14,
-          downVotes: 3
-        }
-      ];
-
-      function buildResultCard(item) {
-        const statusClass = item.status === "approved" ? "green" : "amber";
-        const statusLabel = item.status === "approved" ? "Approved" : "Needs review";
-
-        return `
-          <article class="result">
-            <h3>
-              ${item.title} <span class="dim">-</span> ${item.client}
-              <span class="dim">${item.summaryLabel}</span>
-            </h3>
-
-            <div class="meta">
-              <span><strong>${item.source}</strong> <span class="dot">&middot;</span> Last validated: ${item.lastValidated}</span>
-              <span class="dot">&middot;</span>
-              <span>Status:</span>
-              <span class="pill ${statusClass}"><span class="dot"></span> ${statusLabel}</span>
-            </div>
-
-            <div class="result-footer">
-              <div class="footer-left">
-                <button class="btn" type="button">
+                <button class="btn primary" id="searchButton" type="button">
+                  Search Now
                   <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path d="M9 18l6-6-6-6"></path>
                   </svg>
-                  View document
                 </button>
-                <button class="btn" type="button">Expand summary</button>
+
+                <button class="btn" id="uploadButton" type="button">
+                  <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="color: var(--brand)">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <path d="M7 10l5-5 5 5"></path>
+                    <path d="M12 5v14"></path>
+                  </svg>
+                  Upload documents
+                </button>
+                <input id="fileInput" type="file" hidden />
               </div>
 
-              <div class="vote">
-                <button class="counter counter--up vote-btn" type="button" data-delta="1" aria-pressed="false">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11a2 2 0 0 0 2-2l1-7a2 2 0 0 0-2-2h-5z"></path>
-                  </svg>
-                  <span class="vote-count">${item.upVotes}</span>
-                </button>
-                <button class="counter counter--down vote-btn" type="button" data-delta="-1" aria-pressed="false">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H6a2 2 0 0 0-2 2l-1 7a2 2 0 0 0 2 2h5z"></path>
-                  </svg>
-                  <span class="vote-count">${item.downVotes}</span>
-                </button>
+              <div class="actions">
+                <button class="btn primary" id="searchKnowledgeButton" type="button">Search knowledge</button>
+                <button class="btn" id="resetButton" type="button">Reset chat</button>
+              </div>
+
+              <div class="searching" id="statusText">
+                Searching: SharePoint - Confluence - Teams Files - Internal Repos
               </div>
             </div>
-          </article>
-        `;
-      }
 
-      function renderResults(items) {
-        const resultsEl = document.querySelector(".results");
-        if (!resultsEl) return;
-        resultsEl.innerHTML = items.map(buildResultCard).join("");
-      }
+            <section class="results" id="results" aria-label="Search results">
+              <div class="empty-state">Ask a question to start a Flask-backed RAG conversation.</div>
+            </section>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const queryInput = document.getElementById("queryInput");
+      const searchButton = document.getElementById("searchButton");
+      const searchKnowledgeButton = document.getElementById("searchKnowledgeButton");
+      const resetButton = document.getElementById("resetButton");
+      const uploadButton = document.getElementById("uploadButton");
+      const fileInput = document.getElementById("fileInput");
+      const resultsEl = document.getElementById("results");
+      const statusText = document.getElementById("statusText");
 
       function updateCount(button, delta) {
         const countEl = button.querySelector(".vote-count");
@@ -569,11 +447,12 @@
         if (countEl) countEl.textContent = String(current + delta);
       }
 
-      function bindVoteButtons() {
-        document.querySelectorAll(".vote").forEach((group) => {
+      function wireVotes(scope = document) {
+        scope.querySelectorAll(".vote").forEach((group) => {
           const upBtn = group.querySelector(".counter--up");
           const downBtn = group.querySelector(".counter--down");
-          if (!upBtn || !downBtn) return;
+          if (!upBtn || !downBtn || group.dataset.bound === "true") return;
+          group.dataset.bound = "true";
 
           upBtn.addEventListener("click", () => {
             if (upBtn.classList.contains("is-active")) return;
@@ -605,9 +484,158 @@
         });
       }
 
-      renderResults(dummyResults);
-      bindVoteButtons();
+      function setStatus(message) {
+        statusText.textContent = message;
+      }
+
+      function escapeHtml(value) {
+        return value
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;");
+      }
+
+      function renderHistory(history) {
+        const visible = history.filter((item) => item.role !== "system");
+        if (!visible.length) {
+          resultsEl.innerHTML = '<div class="empty-state">Ask a question to start a Flask-backed RAG conversation.</div>';
+          return;
+        }
+
+        resultsEl.innerHTML = visible
+          .map((item) => {
+            const title = item.role === "user" ? "You asked" : "Kathleen answered";
+            const source = item.role === "user" ? "Prompt" : "Flask + Ollama + Supabase";
+            const statusClass = item.role === "user" ? "amber" : "green";
+            const statusLabel = item.role === "user" ? "User message" : "Generated response";
+
+            return `
+              <article class="result">
+                <h3>${title}</h3>
+                <div class="meta">
+                  <span><strong>${source}</strong> - Current session</span>
+                  <span>Status:</span>
+                  <span class="pill ${statusClass}"><span class="dot"></span>${statusLabel}</span>
+                </div>
+                <div class="result-footer">
+                  <div class="footer-left">
+                    <pre>${escapeHtml(item.content)}</pre>
+                  </div>
+                  <div class="vote">
+                    <button class="counter counter--up" type="button" aria-pressed="false">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11a2 2 0 0 0 2-2l1-7a2 2 0 0 0-2-2h-5z"></path>
+                      </svg>
+                      <span class="vote-count">0</span>
+                    </button>
+                    <button class="counter counter--down" type="button" aria-pressed="false">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H6a2 2 0 0 0-2 2l-1 7a2 2 0 0 0 2 2h5z"></path>
+                      </svg>
+                      <span class="vote-count">0</span>
+                    </button>
+                  </div>
+                </div>
+              </article>
+            `;
+          })
+          .join("");
+
+        wireVotes(resultsEl);
+      }
+
+      function renderLoadingState() {
+        resultsEl.innerHTML = '<div class="empty-state">Consulting Ollama and Supabase...</div>';
+      }
+
+      async function loadHistory() {
+        const response = await fetch("/api/chat/history");
+        const payload = await response.json();
+        renderHistory(payload.history || []);
+      }
+
+      async function submitQuery() {
+        const query = queryInput.value.trim();
+        if (!query) return;
+
+        setStatus("");
+        renderLoadingState();
+        searchButton.disabled = true;
+        searchKnowledgeButton.disabled = true;
+
+        try {
+          const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query }),
+          });
+          const payload = await response.json();
+          if (!response.ok) {
+            throw new Error(payload.error || "Request failed.");
+          }
+          renderHistory(payload.history || []);
+          setStatus("Search complete.");
+        } catch (error) {
+          setStatus(`Request failed: ${error.message}`);
+        } finally {
+          searchButton.disabled = false;
+          searchKnowledgeButton.disabled = false;
+        }
+      }
+
+      async function resetChat() {
+        await fetch("/api/chat/reset", { method: "POST" });
+        renderHistory([]);
+        setStatus("Chat history cleared.");
+      }
+
+      async function uploadFile(file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        setStatus(`Uploading ${file.name}...`);
+
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload.error || "Upload failed.");
+        }
+        setStatus(`Uploaded ${payload.doc.title}.`);
+      }
+
+      document.querySelectorAll(".quick-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          queryInput.value = button.textContent.trim();
+          submitQuery();
+        });
+      });
+
+      searchButton.addEventListener("click", submitQuery);
+      searchKnowledgeButton.addEventListener("click", submitQuery);
+      queryInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          submitQuery();
+        }
+      });
+      resetButton.addEventListener("click", resetChat);
+      uploadButton.addEventListener("click", () => fileInput.click());
+      fileInput.addEventListener("change", async () => {
+        const [file] = fileInput.files;
+        if (!file) return;
+        try {
+          await uploadFile(file);
+        } catch (error) {
+          setStatus(`Upload failed: ${error.message}`);
+        } finally {
+          fileInput.value = "";
+        }
+      });
+
+      wireVotes();
+      loadHistory();
     </script>
   </body>
 </html>
-
