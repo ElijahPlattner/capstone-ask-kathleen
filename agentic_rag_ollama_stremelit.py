@@ -13,10 +13,8 @@ from langchain_classic.agents import AgentExecutor, create_react_agent
 # ----------------------------------------------------
 
 # import langchain components
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.messages import SystemMessage, AIMessage, HumanMessage
-from langchain_classic import hub
-from langchain_core.prompts import PromptTemplate
 from langchain_community.vectorstores import SupabaseVectorStore
 from langchain_core.tools import tool
 
@@ -29,7 +27,19 @@ load_dotenv()
 # initiating supabase
 supabase_url = os.environ.get("SUPABASE_URL")
 supabase_key = os.environ.get("SUPABASE_SERVICE_KEY")
-supabase: Client = create_client(supabase_url, supabase_key)
+
+# supabase-py uses httpx under the hood. if you encounter SSL
+# verification errors (common on Windows with local certs), you can
+# configure a custom client with verification disabled.  For production
+# keep verify=True!
+from httpx import Client as HttpxClient
+from supabase.lib.client_options import SyncClientOptions
+
+options = SyncClientOptions()
+# disable SSL verify (workaround for local cert issues)
+options.httpx_client = HttpxClient(verify=False)
+
+supabase: Client = create_client(supabase_url, supabase_key, options)
 
 # initiating embeddings model
 # --- CHANGED: Using OllamaEmbeddings (768 dimensions) ---
@@ -48,14 +58,39 @@ vector_store = SupabaseVectorStore(
 )
  
 # initiating llm
-# --- CHANGED: Using ChatOllama with the gpt-oss:20b model ---
-llm = ChatOllama(model="llama3.1:8b", base_url="http://localhost:11434")
+# --- CHANGED: Using ChatOllama with the local llama3.1:8b model ---
+# qwen3-vl:4b wasn't available; switch to the pulled llama3.1:8b
+llm = ChatOllama(model="qwen2.5:7b-instruct", base_url="http://localhost:11434")
 
-# pulling prompt from hub
-# --- CHANGED: Pulling the general 'react-chat' prompt for compatibility with Ollama ---
-# This prompt guides the model to use the 'retrieve' tool in a ReAct format.
-prompt = hub.pull("hwchase17/react-chat")
-prompt2 = PromptTemplate.from_template("You are a helpful AI assistant. Use the 'retrieve' tool to find information when needed. At the start of your answer, include a short 'Sources' section listing the sources you used. \n\n{chat_history}\n\nUser: {input}\nAssistant:")
+# creating a local ReAct prompt template (avoiding hub.pull SSL issues)
+prompt = PromptTemplate.from_template("""Answer the following questions as best you can. You have access to the following tools:
+
+{tools}
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+After you receive relevant information from the tool,
+you MUST provide a Final Answer.
+Do not call the same tool more than once.
+Do not repeat observations.
+                                      
+                                      
+
+Chat History:
+{chat_history}
+
+Begin!
+
+Question: {input}
+Thought:{agent_scratchpad}""")
 
 
 # creating the retriever tool
@@ -91,7 +126,7 @@ st.title("🦜 Agentic RAG Chatbot (Ollama Powered)")
 if "messages" not in st.session_state:
     # Initialize with a system message to guide the agent's behavior
     st.session_state.messages = [
-        SystemMessage(content="You are an helpful, expert RAG assistant. Use the 'retrieve' tool to find information before answering, if necessary. At the start of your answer, include a short 'Sources' section listing the sources you used.")
+        SystemMessage(content="You are an helpful, expert RAG assistant. Use the 'retrieve' tool to find information before answering, if necessary.")
     ]
 
 # display chat messages from history on app rerun
