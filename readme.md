@@ -97,7 +97,7 @@ $$;
 ```
 python ingest_in_db.py
 python agentic_rag.py
-streamlit run agentic_rag_streamlit.py
+python app_flask.py
 ```
 
 <h2>Sources</h2>
